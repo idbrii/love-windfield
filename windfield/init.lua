@@ -110,6 +110,7 @@ function World:draw(alpha)
         local x1, y1, x2, y2 = joint:getAnchors()
         if x1 and y1 then love.graphics.circle('line', x1, y1, 4) end
         if x2 and y2 then love.graphics.circle('line', x2, y2, 4) end
+        if x1 and y1 and x2 and y2 then love.graphics.line(x1, y1, x2, y2) end
     end
     love.graphics.setColor(1, 1, 1, alpha)
 
