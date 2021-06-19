@@ -86,15 +86,32 @@ local function capture_collision_events()
 end
 
 local function query_the_world()
-    example.title = "Query The World - press p"
+    create_geo()
+
+    example.title = "Query The World - press C, R, L, or P"
     world:setQueryDebugDrawing(true) -- Draws the area of a query for 10 frames
     world:setGravity(0, 0)
 
     example.on_keypressed = function(key)
-        if key == 'p' then
+        if key == 'c' then
             local colliders = world:queryCircleArea(400, 300, 100)
             for _, collider in ipairs(colliders) do
+                collider:applyLinearImpulse(-1000, 1000)
+            end
+        elseif key == 'r' then
+            local colliders = world:queryRectangleArea(400, 300, 100, 200)
+            for _, collider in ipairs(colliders) do
+                collider:applyLinearImpulse(1000, -1000)
+            end
+        elseif key == 'l' then
+            local colliders = world:queryLine(40, 30, 400, 300)
+            for _, collider in ipairs(colliders) do
                 collider:applyLinearImpulse(1000, 1000)
+            end
+        elseif key == 'p' then
+            local colliders = world:queryPolygonArea({100,200, 400,200, 500,400, 0,400})
+            for _, collider in ipairs(colliders) do
+                collider:applyLinearImpulse(0, 1000)
             end
         end
     end

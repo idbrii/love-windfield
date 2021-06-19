@@ -222,8 +222,18 @@ function love.draw()
 end
 
 function love.keypressed(key)
-    if key == 'p' then
+    if key == 'c' then
         local colliders = world:queryCircleArea(400, 300, 100)
+        for _, collider in ipairs(colliders) do
+            collider:applyLinearImpulse(1000, 1000)
+        end
+    elseif key == 'r' then
+        local colliders = world:queryRectangleArea(400, 300, 100, 200)
+        for _, collider in ipairs(colliders) do
+            collider:applyLinearImpulse(1000, 1000)
+        end
+    elseif key == 'l' then
+        local colliders = world:queryLine(40, 30, 400, 300)
         for _, collider in ipairs(colliders) do
             collider:applyLinearImpulse(1000, 1000)
         end
