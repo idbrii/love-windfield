@@ -563,6 +563,12 @@ function World:collisionClassInCollisionClassesList(collision_class, collision_c
     end
 end
 
+-- Returns a list of windfield.Collider in the circle and match the collision
+-- class.
+--
+-- queryCircleArea(number, number, number, {string}) -> {Collider}
+--
+-- * collision_class_names: optional. If nil, matches all collision classes.
 function World:queryCircleArea(x, y, radius, collision_class_names)
     if not collision_class_names then collision_class_names = {'All'} end
     if self.query_debug_drawing_enabled then table.insert(self.query_debug_draw, {type = 'circle', x = x, y = y, r = radius, frames = self.draw_query_for_n_frames}) end
@@ -590,6 +596,12 @@ function World:queryCircleArea(x, y, radius, collision_class_names)
     return outs
 end
 
+-- Returns a list of windfield.Collider in the rect and match the collision
+-- class.
+--
+-- queryRectangleArea(number, number, number, number, {string}) -> {Collider}
+--
+-- * collision_class_names: optional. If nil, matches all collision classes.
 function World:queryRectangleArea(x, y, w, h, collision_class_names)
     if not collision_class_names then collision_class_names = {'All'} end
     if self.query_debug_drawing_enabled then table.insert(self.query_debug_draw, {type = 'rectangle', x = x, y = y, w = w, h = h, frames = self.draw_query_for_n_frames}) end
@@ -618,6 +630,13 @@ function World:queryRectangleArea(x, y, w, h, collision_class_names)
     return outs
 end
 
+-- Returns a list of windfield.Collider in the poly and match the collision
+-- class.
+-- * vertices: list in format {x1, y1, x2, y2, x3, y3, ...}
+--
+-- queryPolygonArea({number}, {string}) -> {Collider}
+--
+-- * collision_class_names: optional. If nil, matches all collision classes.
 function World:queryPolygonArea(vertices, collision_class_names)
     if not collision_class_names then collision_class_names = {'All'} end
     if self.query_debug_drawing_enabled then table.insert(self.query_debug_draw, {type = 'polygon', vertices = vertices, frames = self.draw_query_for_n_frames}) end
@@ -653,6 +672,12 @@ function World:queryPolygonArea(vertices, collision_class_names)
     return outs
 end
 
+-- Returns a list of windfield.Collider that intersect the line and match the
+-- collision class.
+--
+-- queryLine(number, number, number, number, {string}) -> {Collider}
+--
+-- * collision_class_names: optional. If nil, matches all collision classes.
 function World:queryLine(x1, y1, x2, y2, collision_class_names)
     if not collision_class_names then collision_class_names = {'All'} end
     if self.query_debug_drawing_enabled then
