@@ -53,6 +53,8 @@
 
 # Quick Start
 
+*See main.lua in the root of the repository for a runnable version of these examples.*
+
 Place the `windfield` folder inside your project and require it:
 
 ```lua
@@ -938,4 +940,4 @@ Returns:
 
 # LICENSE
 
-You can do whatever you want with this. See the license at the top of the main file.
+You can do whatever you want with this. See the license at the top of windfield/init.lua
