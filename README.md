@@ -950,4 +950,8 @@ Returns:
 
 # LICENSE
 
+MIT.
+
 You can do whatever you want with this. See the license at the top of windfield/init.lua
+
+Contains davisdude/mlib under zlib license.
