@@ -94,8 +94,8 @@ function World:draw(alpha)
             elseif fixture:getShape():type() == 'CircleShape' then
                 local body_x, body_y = body:getPosition()
                 local shape_x, shape_y = fixture:getShape():getPoint()
-                local r = fixture:getShape():getRadius()
-                love.graphics.circle('line', body_x + shape_x, body_y + shape_y, r, 360)
+                local radius = fixture:getShape():getRadius()
+                love.graphics.circle('line', body_x + shape_x, body_y + shape_y, radius, 360)
             end
         end
     end
@@ -340,7 +340,7 @@ function World:generateCategoriesMasks()
         categories[k] = {}
     end
     for k, v in pairs(edge_groups) do
-        for i, c in ipairs(v) do
+        for j, c in ipairs(v) do
             categories[c] = v.n
         end
     end
@@ -794,22 +794,22 @@ function Collider.new(world, collider_type, ...)
     -- This means that the user can call collider:setLinearVelocity for instance without having to say collider.body:setLinearVelocity
     for k, v in pairs(self.body.__index) do
         if k ~= '__gc' and k ~= '__eq' and k ~= '__index' and k ~= '__tostring' and k ~= 'destroy' and k ~= 'type' and k ~= 'typeOf' then
-            self[k] = function(self, ...)
-                return v(self.body, ...)
+            self[k] = function(this, ...)
+                return v(this.body, ...)
             end
         end
     end
     for k, v in pairs(self.fixture.__index) do
         if k ~= '__gc' and k ~= '__eq' and k ~= '__index' and k ~= '__tostring' and k ~= 'destroy' and k ~= 'type' and k ~= 'typeOf' then
-            self[k] = function(self, ...)
-                return v(self.fixture, ...)
+            self[k] = function(this, ...)
+                return v(this.fixture, ...)
             end
         end
     end
     for k, v in pairs(self.shape.__index) do
         if k ~= '__gc' and k ~= '__eq' and k ~= '__index' and k ~= '__tostring' and k ~= 'destroy' and k ~= 'type' and k ~= 'typeOf' then
-            self[k] = function(self, ...)
-                return v(self.shape, ...)
+            self[k] = function(this, ...)
+                return v(this.shape, ...)
             end
         end
     end
