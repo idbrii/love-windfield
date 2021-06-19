@@ -30,7 +30,7 @@ World = {}
 World.__index = World
 
 function wf.newWorld(xg, yg, sleep)
-    local world = wf.World.new(wf, xg, yg, sleep)
+    local world = wf.World.new(xg, yg, sleep)
 
     world.box2d_world:setCallbacks(world.collisionOnEnter, world.collisionOnExit, world.collisionPre, world.collisionPost)
     world:collisionClear()
@@ -49,9 +49,8 @@ function wf.newWorld(xg, yg, sleep)
     return world
 end
 
-function World.new(wf, xg, yg, sleep)
+function World.new(xg, yg, sleep)
     local self = {}
-    self.wf = wf
 
     self.draw_query_for_n_frames = 10
     self.query_debug_drawing_enabled = false
@@ -504,27 +503,27 @@ function World.collisionPost(fixture_a, fixture_b, contact, ni1, ti1, ni2, ti2)
 end
 
 function World:newCircleCollider(x, y, r, settings)
-    return self.wf.Collider.new(self, 'Circle', x, y, r, settings)
+    return wf.Collider.new(self, 'Circle', x, y, r, settings)
 end
 
 function World:newRectangleCollider(x, y, w, h, settings)
-    return self.wf.Collider.new(self, 'Rectangle', x, y, w, h, settings)
+    return wf.Collider.new(self, 'Rectangle', x, y, w, h, settings)
 end
 
 function World:newBSGRectangleCollider(x, y, w, h, corner_cut_size, settings)
-    return self.wf.Collider.new(self, 'BSGRectangle', x, y, w, h, corner_cut_size, settings)
+    return wf.Collider.new(self, 'BSGRectangle', x, y, w, h, corner_cut_size, settings)
 end
 
 function World:newPolygonCollider(vertices, settings)
-    return self.wf.Collider.new(self, 'Polygon', vertices, settings)
+    return wf.Collider.new(self, 'Polygon', vertices, settings)
 end
 
 function World:newLineCollider(x1, y1, x2, y2, settings)
-    return self.wf.Collider.new(self, 'Line', x1, y1, x2, y2, settings)
+    return wf.Collider.new(self, 'Line', x1, y1, x2, y2, settings)
 end
 
 function World:newChainCollider(vertices, loop, settings)
-    return self.wf.Collider.new(self, 'Chain', vertices, loop, settings)
+    return wf.Collider.new(self, 'Chain', vertices, loop, settings)
 end
 
 -- Internal AABB box2d query used before going for more specific and precise computations.
@@ -575,12 +574,12 @@ function World:queryCircleArea(x, y, radius, collision_class_names)
             for _, fixture in ipairs(collider.body:getFixtures()) do
                 if(fixture:getShape():getType() == 'circle') then
                     local x2, y2 = collider.body:getWorldPoint(fixture:getShape():getPoint())
-                    if self.wf.Math.circle.getCircleIntersection(x, y, radius, x2 , y2 , fixture:getShape():getRadius()) then
+                    if wf.Math.circle.getCircleIntersection(x, y, radius, x2 , y2 , fixture:getShape():getRadius()) then
                         table.insert(outs, collider)
                         break
                     end
                 else
-                    if self.wf.Math.polygon.getCircleIntersection(x, y, radius, {collider.body:getWorldPoints(fixture:getShape():getPoints())}) then
+                    if wf.Math.polygon.getCircleIntersection(x, y, radius, {collider.body:getWorldPoints(fixture:getShape():getPoints())}) then
                         table.insert(outs, collider)
                         break
                     end
@@ -602,13 +601,13 @@ function World:queryRectangleArea(x, y, w, h, collision_class_names)
             for _, fixture in ipairs(collider.body:getFixtures()) do
                 if(fixture:getShape():getType() == 'circle') then
                     local x2, y2 = collider.body:getWorldPoint(fixture:getShape():getPoint())
-                    if self.wf.Math.polygon.isCircleInside(x2, y2, fixture:getShape():getRadius(), {x, y, x+w, y, x+w, y+h, x, y+h}) or
-                        self.wf.Math.polygon.getCircleIntersection(x2, y2, fixture:getShape():getRadius(), {x, y, x+w, y, x+w, y+h, x, y+h}) then
+                    if wf.Math.polygon.isCircleInside(x2, y2, fixture:getShape():getRadius(), {x, y, x+w, y, x+w, y+h, x, y+h}) or
+                        wf.Math.polygon.getCircleIntersection(x2, y2, fixture:getShape():getRadius(), {x, y, x+w, y, x+w, y+h, x, y+h}) then
                         table.insert(outs, collider)
                         break
                     end
                 else
-                    if self.wf.Math.polygon.isPolygonInside({x, y, x+w, y, x+w, y+h, x, y+h}, {collider.body:getWorldPoints(fixture:getShape():getPoints())}) then
+                    if wf.Math.polygon.isPolygonInside({x, y, x+w, y, x+w, y+h, x, y+h}, {collider.body:getWorldPoints(fixture:getShape():getPoints())}) then
                         table.insert(outs, collider)
                         break
                     end
@@ -623,10 +622,10 @@ function World:queryPolygonArea(vertices, collision_class_names)
     if not collision_class_names then collision_class_names = {'All'} end
     if self.query_debug_drawing_enabled then table.insert(self.query_debug_draw, {type = 'polygon', vertices = vertices, frames = self.draw_query_for_n_frames}) end
 
-    local cx, cy = self.wf.Math.polygon.getCentroid(vertices)
+    local cx, cy = wf.Math.polygon.getCentroid(vertices)
     local d_max = 0
     for i = 1, #vertices, 2 do
-        local d = self.wf.Math.line.getLength(cx, cy, vertices[i], vertices[i+1])
+        local d = wf.Math.line.getLength(cx, cy, vertices[i], vertices[i+1])
         if d > d_max then d_max = d end
     end
     local colliders = self:_queryBoundingBox(cx-d_max, cy-d_max, cx+d_max, cy+d_max)
@@ -637,13 +636,13 @@ function World:queryPolygonArea(vertices, collision_class_names)
                 if(fixture:getShape():getType() == 'circle') then
 
                     local x2, y2 = collider.body:getWorldPoint(fixture:getShape():getPoint())
-                    if self.wf.Math.polygon.isCircleInside(x2, y2, fixture:getShape():getRadius(), vertices) or
-                        self.wf.Math.polygon.getCircleIntersection(x2, y2, fixture:getShape():getRadius(), vertices) then
+                    if wf.Math.polygon.isCircleInside(x2, y2, fixture:getShape():getRadius(), vertices) or
+                        wf.Math.polygon.getCircleIntersection(x2, y2, fixture:getShape():getRadius(), vertices) then
                         table.insert(outs, collider)
                         break
                     end
                 else
-                    if self.wf.Math.polygon.isPolygonInside(vertices, {collider.body:getWorldPoints(fixture:getShape():getPoints())}) then
+                    if wf.Math.polygon.isPolygonInside(vertices, {collider.body:getWorldPoints(fixture:getShape():getPoints())}) then
                         table.insert(outs, collider)
                         break
                     end
