@@ -320,7 +320,7 @@ end
 
 function love.keypressed(key)
   if key == 'space' then
-    player:applyLinearImpulse(0, -1000)
+    player:applyLinearImpulse(0, -700)
   end
 end
 ```

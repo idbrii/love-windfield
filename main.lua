@@ -8,7 +8,7 @@ local example = {
     index = 1,
     title = '',
     on_update = nil,
-    has_created_collision_classes = false,
+    created_collision_classes = {},
 }
 
 local function create_geo()
@@ -52,8 +52,8 @@ end
 
 local function create_collision_classes()
     example.title = "Create Collision Classes"
-    if not example.has_created_collision_classes then
-        example.has_created_collision_classes = true
+    if not example.created_collision_classes[example.title] then
+        example.created_collision_classes[example.title] = true
         world:addCollisionClass('Solid')
         world:addCollisionClass('Ghost', {ignores = {'Solid'}})
     end
@@ -121,12 +121,50 @@ local function query_the_world()
     end
 end
 
+local function one_way_platforms()
+    example.title = "One Way Platforms - press space"
+    if not example.created_collision_classes[example.title] then
+        example.created_collision_classes[example.title] = true
+        world:addCollisionClass('Platform')
+        world:addCollisionClass('Player')
+    end
+
+    local ground = world:newRectangleCollider(100, 500, 600, 50)
+    ground:setType('static')
+    local platform = world:newRectangleCollider(350, 400, 100, 20)
+    platform:setType('static')
+    platform:setCollisionClass('Platform')
+    local player = world:newRectangleCollider(390, 450, 20, 40)
+    player:setCollisionClass('Player')
+    table.insert(objs, ground)
+    table.insert(objs, platform)
+    table.insert(objs, player)
+
+    player:setPreSolve(function(collider_1, collider_2, contact)
+        if collider_1.collision_class == 'Player' and collider_2.collision_class == 'Platform' then
+            local px, py = collider_1:getPosition()
+            local pw, ph = 20, 40
+            local tx, ty = collider_2:getPosition()
+            local tw, th = 100, 20
+            if py + ph/2 > ty - th/2 then contact:setEnabled(false) end
+        end
+    end)
+
+    example.on_keypressed = function(key)
+        if key == 'space' then
+            player:applyLinearImpulse(0, -700)
+        end
+    end
+end
+
+
 local example_list = {
     create_colliders,
     create_joints,
     create_collision_classes,
     capture_collision_events,
     query_the_world,
+    one_way_platforms,
 }
 
 -- Loops input value i within range [1, n]. Useful for circular lists.
