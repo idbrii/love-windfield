@@ -572,7 +572,7 @@ function World:queryCircleArea(x, y, radius, collision_class_names)
     for _, collider in ipairs(colliders) do
         if self:collisionClassInCollisionClassesList(collider.collision_class, collision_class_names) then
             for _, fixture in ipairs(collider.body:getFixtures()) do
-                if(fixture:getShape():getType() == 'circle') then
+                if fixture:getShape():getType() == 'circle' then
                     local x2, y2 = collider.body:getWorldPoint(fixture:getShape():getPoint())
                     if wf.Math.circle.getCircleIntersection(x, y, radius, x2 , y2 , fixture:getShape():getRadius()) then
                         table.insert(outs, collider)
@@ -599,7 +599,7 @@ function World:queryRectangleArea(x, y, w, h, collision_class_names)
     for _, collider in ipairs(colliders) do
         if self:collisionClassInCollisionClassesList(collider.collision_class, collision_class_names) then
             for _, fixture in ipairs(collider.body:getFixtures()) do
-                if(fixture:getShape():getType() == 'circle') then
+                if fixture:getShape():getType() == 'circle' then
                     local x2, y2 = collider.body:getWorldPoint(fixture:getShape():getPoint())
                     if wf.Math.polygon.isCircleInside(x2, y2, fixture:getShape():getRadius(), {x, y, x+w, y, x+w, y+h, x, y+h}) or
                         wf.Math.polygon.getCircleIntersection(x2, y2, fixture:getShape():getRadius(), {x, y, x+w, y, x+w, y+h, x, y+h}) then
@@ -633,7 +633,7 @@ function World:queryPolygonArea(vertices, collision_class_names)
     for _, collider in ipairs(colliders) do
         if self:collisionClassInCollisionClassesList(collider.collision_class, collision_class_names) then
             for _, fixture in ipairs(collider.body:getFixtures()) do
-                if(fixture:getShape():getType() == 'circle') then
+                if fixture:getShape():getType() == 'circle' then
 
                     local x2, y2 = collider.body:getWorldPoint(fixture:getShape():getPoint())
                     if wf.Math.polygon.isCircleInside(x2, y2, fixture:getShape():getRadius(), vertices) or
