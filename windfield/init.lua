@@ -51,7 +51,6 @@ end
 
 function World.new(wf, xg, yg, sleep)
     local self = {}
-    local settings = settings or {}
     self.wf = wf
 
     self.draw_query_for_n_frames = 10
