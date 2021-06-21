@@ -1,0 +1,5 @@
+#! /bin/sh
+
+sudo apt-get install lua5.3 liblua5.3-dev luarocks
+# github ldoc is far ahead of the released version.
+luarocks --local install https://raw.githubusercontent.com/lunarmodules/LDoc/master/ldoc-scm-3.rockspec

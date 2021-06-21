@@ -1,0 +1,16 @@
+#! /bin/bash
+function __buildtags
+{
+    ~/.luarocks/bin/ldoc . |& tee ldoc.log
+    sed -i -e"s,/mnt/c,c:," ldoc.log
+}
+
+echo 'building'
+__buildtags
+while inotifywait --quiet --event close_write,moved_to,create --exclude '/\.' --recursive ../windfield/ ./config.ld ; do
+    echo
+    echo
+    echo 'building'
+    echo
+    __buildtags
+done
