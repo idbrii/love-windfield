@@ -82,7 +82,7 @@ end
 
 ## Create colliders
 
-A collider is a composition of a single body, fixture and shape. For most use cases whenever box2d is needed a body will only have one fixture/shape attached to it, so it makes sense to work primarily on that level of abstraction. Colliders contain all the functions of a LÖVE physics [Body](https://love2d.org/wiki/Body), [Fixture](https://love2d.org/wiki/Fixture) and [Shape](https://love2d.org/wiki/Shape) as well as additional ones defined by this library:
+A collider is a composition of a single body, fixture, and shape. For most use cases whenever box2d is needed a body will only have one fixture/shape attached to it, so it makes sense to work primarily on that level of abstraction. Colliders contain all the functions of a LÖVE physics [Body](https://love2d.org/wiki/Body), [Fixture](https://love2d.org/wiki/Fixture) and [Shape](https://love2d.org/wiki/Shape) as well as additional ones defined by this library:
 
 ```lua
 function love.load()
@@ -355,7 +355,7 @@ Arguments:
 
 * `xg` `(number)` - The world's x gravity component
 * `yg` `(number)` - The world's y gravity component
-* `sleep=true` `(boolean)` - If the world's bodies are allowed to sleep or not
+* `sleep=true` `(boolean)` - Whether the world's bodies are allowed to sleep
 
 Returns:
 
@@ -366,7 +366,7 @@ Returns:
 
 #### `:update(dt)`
 
-Updates the world.
+Updates the world to allow bodies to continue their motion and starts a new frame for collision events.
 
 ```lua
 world:update(dt)
@@ -380,7 +380,7 @@ Arguments:
 
 #### `:draw(alpha)`
 
-Draws the world, drawing all colliders, joints and world queries (for debugging purposes).
+Draws the world visualizing colliders, joints, and world queries (for debugging purposes).
 
 ```lua
 world:draw() -- default drawing
@@ -389,13 +389,13 @@ world:draw(128) -- semi transparent drawing
 
 Arguments:
 
-* `alpha=255` `(number)` - The optional alpha value to use when drawing, defaults to 255
+* `alpha=1` `(number)` - The optional alpha value to use when drawing, defaults to 1.
 
 ---
 
 #### `:destroy()`
 
-Destroys the world and removes all bodies, fixtures, shapes and joints from it. This must be called whenever the World is to discarded otherwise it will result in it not getting collected (and so memory will leak).
+Destroys the world and removes all bodies, fixtures, shapes, and joints from it. This must be called whenever the World is to discarded otherwise it will result in it not getting collected (and so memory will leak).
 
 ```lua
 world:destroy()
@@ -405,7 +405,7 @@ world:destroy()
 
 #### `:addCollisionClass(collision_class_name, collision_class)`
 
-Adds a new collision class to the World. Collision classes are attached to Colliders and defined their behaviors in terms of which ones will physically ignore each other and which ones will generate collision events between each other. All collision classes must be added before any Collider is created. If `world:setExplicitCollisionEvents` is set to false (the default setting) then `enter`, `exit`, `pre` and `post` settings don't need to be specified, otherwise they do.
+Adds a new collision class to the World. Collision classes are attached to Colliders and defined their behaviors in terms of which ones will physically ignore each other and which ones will generate collision events between each other. All collision classes must be added before any Collider is created. If `world:setExplicitCollisionEvents` is set to false (the default setting) then `enter`, `exit`, `pre`, and `post` settings don't need to be specified, otherwise they do.
 ```lua
 world:addCollisionClass('Player', {ignores = {'NPC', 'Enemy'}})
 ```
@@ -413,15 +413,15 @@ world:addCollisionClass('Player', {ignores = {'NPC', 'Enemy'}})
 Arguments:
 
 * `collision_class_name` `(string)` - The unique name of the collision class
-* `collision_class` `(table)` - The collision class. This table can contain:
+* `collision_class` `(table)` - The collision class definition. Mostly specifying collision class names that should generate collision events with the collider of this collision class at different points in time.
 
 Settings:
 
-* `[ignores]` `(table[string])` - The collision classes that will be physically ignored
-* `[enter]` `(table[string])` - The collision classes that will generate collision events with the collider of this collision class when they enter contact with each other
-* `[exit]` `(table[string])` - The collision classes that will generate collision events with the collider of this collision class when they exit contact with each other
-* `[pre]` `(table[string])` - The collision classes that will generate collision events with the collider of this collision class just before collision response is applied
-* `[post]` `(table[string])` - The collision classes that will generate collision events with the collider of this collision class right after collision response is applied
+* `[ignores]` `(table[string])` - physically ignore (don't collide)
+* `[enter]` `(table[string])`   - collision events when they *enter* contact with each other
+* `[exit]` `(table[string])`    - collision events when they *exit* contact with each other
+* `[pre]` `(table[string])`     - collision events *just before* collision response is applied
+* `[post]` `(table[string])`    - collision events *right after* collision response is applied
 
 ---
 
@@ -441,7 +441,7 @@ Arguments:
 
 Returns:
 
-* `Collider` `(table)` - The newly created CircleCollider
+* `Collider` `(table)` - The created CircleCollider
 
 ---
 
@@ -462,7 +462,7 @@ Arguments:
 
 Returns:
 
-* `Collider` `(table)` - The newly created RectangleCollider
+* `Collider` `(table)` - The created RectangleCollider
 
 ---
 
@@ -484,7 +484,7 @@ Arguments:
 
 Returns:
 
-* `Collider` `(table)` - The newly created BSGRectangleCollider
+* `Collider` `(table)` - The created BSGRectangleCollider
 
 ---
 
@@ -502,7 +502,7 @@ Arguments:
 
 Returns:
 
-* `Collider` `(table)` - The newly created PolygonCollider
+* `Collider` `(table)` - The created PolygonCollider
 
 ---
 
@@ -523,7 +523,7 @@ Arguments:
 
 Returns:
 
-* `Collider` `(table)` - The newly created LineCollider
+* `Collider` `(table)` - The created LineCollider
 
 ---
 
@@ -542,11 +542,11 @@ Arguments:
 
 Returns:
 
-* `Collider` `(table)` - The newly created ChainCollider
+* `Collider` `(table)` - The created ChainCollider
 
 ---
 
-#### `:queryCircleArea(x, y, r, collision_class_names)`
+#### `:queryCircleArea(x, y, radius, collision_class_names)`
 
 Queries a circular area around a point for colliders.
 
@@ -559,7 +559,7 @@ Arguments:
 
 * `x` `(number)` - The x position of the circle's center
 * `y` `(number)` - The y position of the circle's center
-* `r` `(number)` - The radius of the circle
+* `radius` `(number)` - The radius of the circle
 * `[collision_class_names='All']` `(table[string])` - A table of strings with collision class names to be queried. The special value `'All'` (default) can be used to query for all existing collision classes. Another special value `except` can be used to exclude some collision classes when `'All'` is used.
 
 Returns:
@@ -645,11 +645,11 @@ joint = world:addJoint('RevoluteJoint', collider_1, collider_2, 50, 50, true)
 Arguments:
 
 * `joint_type` `(string)` - The joint type, it can be `'DistanceJoint'`, `'FrictionJoint'`, `'GearJoint'`, `'MouseJoint'`, `'PrismaticJoint'`, `'PulleyJoint'`, `'RevoluteJoint'`, `'RopeJoint'`, `'WeldJoint'` or `'WheelJoint'`
-* `...` `(*)` - The joint creation arguments that are different for each joint type, check [here](https://love2d.org/wiki/Joint) for more details
+* `...` `(*)` - The joint creation arguments that are different for each joint type, check [Joint](https://love2d.org/wiki/Joint) for more details
 
 Returns:
 
-* `joint` `(Joint)` - The newly created Joint
+* `joint` `(Joint)` - The created Joint
 
 ---
 
@@ -678,7 +678,7 @@ world:setExplicitCollisionEvents(true)
 
 Arguments:
 
-* `value` `(boolean)` - If collision events are explicit or not
+* `value` `(boolean)` - Whether collision events are explicit
 
 ---
 
@@ -692,7 +692,7 @@ world:setQueryDebugDrawing(true)
 
 Arguments:
 
-* `value` `(boolean)` - If query debug drawing is active or not
+* `value` `(boolean)` - Whether query debug drawing is active
 
 ---
 
@@ -831,7 +831,7 @@ Arguments:
 
 Returns:
 
-* `boolean` - If the stay collision event between both colliders is happening on this frame or not
+* `boolean` - Whether the stay collision event between both colliders is happening on this frame
 
 ---
 
@@ -871,7 +871,7 @@ end
 
 Arguments:
 
-* `callback` `(function)` - The preSolve callback. Receives `collider_1`, `collider_2` and `contact` as arguments
+* `callback` `(function)` - The preSolve callback. Receives `collider_1`, `collider_2`, and `contact` as arguments
 
 ---
 
@@ -887,7 +887,7 @@ end
 
 Arguments:
 
-* `callback` `(function)` - The postSolve callback. Receives `collider_1`, `collider_2`, `contact`, `normal_impulse1`, `tangent_impulse1`, `normal_impulse2` and `tangent_impulse2` as arguments
+* `callback` `(function)` - The postSolve callback. Receives `collider_1`, `collider_2`, `contact`, `normal_impulse1`, `tangent_impulse1`, `normal_impulse2`, and `tangent_impulse2` as arguments
 
 ---
 
@@ -899,7 +899,7 @@ Arguments:
 
 * `shape_name` `(string)` - The unique name of the shape
 * `shape_type` `(string)` - The shape type, can be `'ChainShape'`, `'CircleShape'`, `'EdgeShape'`, `'PolygonShape'` or `'RectangleShape'`
-* `...` `(*)` - The shape creation arguments that are different for each shape. Check [here](https://love2d.org/wiki/Shape) for more details
+* `...` `(*)` - The shape creation arguments that are different for each shape. Check [Shape](https://love2d.org/wiki/Shape) for more details
 
 ---
 
