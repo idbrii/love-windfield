@@ -32,6 +32,18 @@ wf.Math = require(path .. 'mlib.mlib')
 World = {}
 World.__index = World
 
+--- Creates a new World.
+--
+-- newWorld(number, number, boolean) -> table
+--
+-- number: xg The world's x gravity component
+-- number: yg The world's y gravity component
+-- boolean: sleep=true Whether the world's bodies are allowed to sleep
+--
+-- return: table: World the World object, containing all attributes and methods defined below as well as all of a [box2d World](https://love2d.org/wiki/World)
+--
+-- usage:
+--     world = wf.newWorld(0, 0, true)
 function wf.newWorld(xg, yg, sleep)
     local world = wf.World.new(xg, yg, sleep)
 
@@ -69,11 +81,28 @@ function World.new(xg, yg, sleep)
     return setmetatable(self, World)
 end
 
+--- Updates the world to allow bodies to continue their motion and starts a new frame for collision events.
+--
+-- update(number) -> nil
+--
+-- number: dt The time step delta
+--
+-- usage:
+--     world:update(dt)
 function World:update(dt)
     self:collisionEventsClear()
     self.box2d_world:update(dt)
 end
 
+--- Draws the world visualizing colliders, joints, and world queries (for debugging purposes).
+--
+-- draw(number) -> nil
+--
+-- number: alpha=1 The optional alpha value to use when drawing, defaults to 1.
+--
+-- usage:
+--     world:draw() -- default drawing
+--     world:draw(128) -- semi transparent drawing
 function World:draw(alpha)
     -- get the current color values to reapply
     local r, g, b, a = love.graphics.getColor()
@@ -139,14 +168,47 @@ function World:draw(alpha)
     love.graphics.setLineWidth(linewidth)
 end
 
+--- Sets query debug drawing to be active or not.
+-- If active, then collider queries will be drawn to the screen for 10 frames. This is used for debugging purposes and incurs a performance penalty. Don't forget to turn it off!
+--
+-- setQueryDebugDrawing(boolean) -> nil
+--
+-- boolean: value Whether query debug drawing is active
+--
+-- usage:
+--     world:setQueryDebugDrawing(true)
 function World:setQueryDebugDrawing(value)
     self.query_debug_drawing_enabled = value
 end
 
+--- Sets collision events to be explicit or not.
+-- If explicit, then collision events will only be generated between collision classes when they are specified in `addCollisionClasses`. By default this is set to false, meaning that collision events are generated between all collision classes. The main reason why you might want to set this to true is for performance, since not generating collision events between every collision class will require less computation. This function must be called before any collision class is added to the world.
+--
+-- setExplicitCollisionEvents(boolean) -> nil
+--
+-- boolean: value Whether collision events are explicit
+--
+-- usage:
+--     world:setExplicitCollisionEvents(true)
 function World:setExplicitCollisionEvents(value)
     self.explicit_collision_events = value
 end
 
+--- Adds a new collision class to the World.
+-- Collision classes are attached to Colliders and defined their behaviors in terms of which ones will physically ignore each other and which ones will generate collision events between each other. All collision classes must be added before any Collider is created. If `world:setExplicitCollisionEvents` is set to false (the default setting) then `enter`, `exit`, `pre`, and `post` settings don't need to be specified, otherwise they do.
+--
+-- addCollisionClass(string, table) -> nil
+--
+-- string: collision_class_name The unique name of the collision class
+-- table: collision_class The collision class. This table can contain:
+--   {string}: [ignores] The collision classes that will be physically ignored
+--   {string}: [enter] The collision classes that will generate collision events with the collider of this collision class when they *enter* contact with each other
+--   {string}: [exit] The collision classes that will generate collision events with the collider of this collision class when they *exit* contact with each other
+--   {string}: [pre] The collision classes that will generate collision events with the collider of this collision class *just before* collision response is applied
+--   {string}: [post] The collision classes that will generate collision events with the collider of this collision class *right after* collision response is applied
+--
+-- usage:
+--     world:addCollisionClass('Player', {ignores = {'NPC', 'Enemy'}})
 function World:addCollisionClass(collision_class_name, collision_class)
     if self.collision_classes[collision_class_name] then error('Collision class ' .. collision_class_name .. ' already exists.') end
 
@@ -505,26 +567,99 @@ function World.collisionPost(fixture_a, fixture_b, contact, ni1, ti1, ni2, ti2)
     end
 end
 
+--- Creates a new CircleCollider.
+--
+-- newCircleCollider(number, number, number) -> table
+--
+-- number: x The x position of the circle's center
+-- number: y The y position of the circle's center
+-- number: r The radius of the circle
+--
+-- return: table: Collider The created CircleCollider
+--
+-- usage:
+--     circle = world:newCircleCollider(100, 100, 30)
 function World:newCircleCollider(x, y, r, settings)
     return wf.Collider.new(self, 'Circle', x, y, r, settings)
 end
 
+--- Creates a new RectangleCollider.
+--
+-- newRectangleCollider(number, number, number, number) -> table
+--
+-- number: x The x position of the rectangle's top-left corner
+-- number: y The y position of the rectangle's top-left corner
+-- number: w The width of the rectangle
+-- number: h The height of the rectangle
+--
+-- return: table: Collider The created RectangleCollider
+--
+-- usage:
+--     rectangle = world:newRectangleCollider(100, 100, 50, 50)
 function World:newRectangleCollider(x, y, w, h, settings)
     return wf.Collider.new(self, 'Rectangle', x, y, w, h, settings)
 end
 
+--- Creates a new BSGRectangleCollider, which is a rectangle with its corners cut (an octagon).
+--
+-- newBSGRectangleCollider(number, number, number, number, number) -> table
+--
+-- number: x The x position of the rectangle's top-left corner
+-- number: y The y position of the rectangle's top-left corner
+-- number: w The width of the rectangle
+-- number: h The height of the rectangle
+-- number: corner_cut_size The corner cut size
+--
+-- return: table: Collider The created BSGRectangleCollider
+--
+-- usage:
+--     bsg_rectangle = world:newBSGRectangleCollider(100, 100, 50, 50, 5)
 function World:newBSGRectangleCollider(x, y, w, h, corner_cut_size, settings)
     return wf.Collider.new(self, 'BSGRectangle', x, y, w, h, corner_cut_size, settings)
 end
 
+--- Creates a new PolygonCollider.
+--
+-- newPolygonCollider({number}) -> table
+--
+-- {number}: vertices The polygon vertices as a table of numbers
+--
+-- return: table: Collider The created PolygonCollider
+--
+-- usage:
+--     polygon = world:newPolygonCollider({10, 10, 10, 20, 20, 20, 20, 10})
 function World:newPolygonCollider(vertices, settings)
     return wf.Collider.new(self, 'Polygon', vertices, settings)
 end
 
+--- Creates a new LineCollider.
+--
+-- newLineCollider(number, number, number, number) -> table
+--
+-- number: x1 The x position of the first point of the line
+-- number: y1 The y position of the first point of the line
+-- number: x2 The x position of the second point of the line
+-- number: y2 The y position of the second point of the line
+--
+-- return: table: Collider The created LineCollider
+--
+-- usage:
+--     line = world:newLineCollider(100, 100, 200, 200)
 function World:newLineCollider(x1, y1, x2, y2, settings)
     return wf.Collider.new(self, 'Line', x1, y1, x2, y2, settings)
 end
 
+--- Creates a new ChainCollider.
+--
+-- newChainCollider({number}, boolean) -> table
+--
+-- {number}: vertices The chain vertices as a table of numbers
+-- boolean: loop If the chain should loop back from the last to the first point
+--
+-- return: table: Collider The created ChainCollider
+--
+-- usage:
+--     chain = world:newChainCollider({10, 10, 10, 20, 20, 20}, true)
 function World:newChainCollider(vertices, loop, settings)
     return wf.Collider.new(self, 'Chain', vertices, loop, settings)
 end
@@ -566,6 +701,20 @@ function World:collisionClassInCollisionClassesList(collision_class, collision_c
     end
 end
 
+--- Queries a circular area around a point for colliders.
+--
+-- queryCircleArea(number, number, number, {string}) -> {Collider}
+--
+-- number: x The x position of the circle's center
+-- number: y The y position of the circle's center
+-- number: radius The radius of the circle
+-- {string}: [collision_class_names='All'] A table of strings with collision class names to be queried. The special value `'All'` (default) can be used to query for all existing collision classes. Another special value `except` can be used to exclude some collision classes when `'All'` is used.
+--
+-- return: {Collider}: The table of colliders with the specified collision classes inside the area
+--
+-- usage:
+--     colliders_1 = world:queryCircleArea(100, 100, 50, {'Enemy', 'NPC'})
+--     colliders_2 = world:queryCircleArea(100, 100, 50, {'All', except = {'Player'}})
 function World:queryCircleArea(x, y, radius, collision_class_names)
     if not collision_class_names then collision_class_names = {'All'} end
     if self.query_debug_drawing_enabled then table.insert(self.query_debug_draw, {type = 'circle', x = x, y = y, r = radius, frames = self.draw_query_for_n_frames}) end
@@ -593,6 +742,21 @@ function World:queryCircleArea(x, y, radius, collision_class_names)
     return outs
 end
 
+--- Queries a rectangular area for colliders.
+--
+-- queryRectangleArea(number, number, number, number, {string}) -> {Collider}
+--
+-- number: x The x position of the rectangle's top-left corner
+-- number: y The y position of the rectangle's top-left corner
+-- number: w The width of the rectangle
+-- number: h The height of the rectangle
+-- {string}: [collision_class_names='All'] A table of strings with collision class names to be queried. The special value `'All'` (default) can be used to query for all existing collision classes. Another special value `except` can be used to exclude some collision classes when `'All'` is used.
+--
+-- return: {Collider}: The table of colliders with the specified collision classes inside the area
+--
+-- usage:
+--     colliders_1 = world:queryRectangleArea(100, 100, 50, 50, {'Enemy', 'NPC'})
+--     colliders_2 = world:queryRectangleArea(100, 100, 50, 50, {'All', except = {'Player'}})
 function World:queryRectangleArea(x, y, w, h, collision_class_names)
     if not collision_class_names then collision_class_names = {'All'} end
     if self.query_debug_drawing_enabled then table.insert(self.query_debug_draw, {type = 'rectangle', x = x, y = y, w = w, h = h, frames = self.draw_query_for_n_frames}) end
@@ -621,6 +785,18 @@ function World:queryRectangleArea(x, y, w, h, collision_class_names)
     return outs
 end
 
+--- Queries a polygon area for colliders.
+--
+-- queryPolygonArea({number}, {string}) -> {Collider}
+--
+-- {number}: vertices The polygon vertices as a table of numbers
+-- {string}: [collision_class_names='All'] A table of strings with collision class names to be queried. The special value `'All'` (default) can be used to query for all existing collision classes. Another special value `except` can be used to exclude some collision classes when `'All'` is used.
+--
+-- return: {Collider}: The table of colliders with the specified collision classes inside the area
+--
+-- usage:
+--     colliders_1 = world:queryPolygonArea({10, 10, 20, 10, 20, 20, 10, 20}, {'Enemy'})
+--     colliders_2 = world:queryPolygonArea({10, 10, 20, 10, 20, 20, 10, 20}, {'All', except = {'Player'}})
 function World:queryPolygonArea(vertices, collision_class_names)
     if not collision_class_names then collision_class_names = {'All'} end
     if self.query_debug_drawing_enabled then table.insert(self.query_debug_draw, {type = 'polygon', vertices = vertices, frames = self.draw_query_for_n_frames}) end
@@ -656,6 +832,21 @@ function World:queryPolygonArea(vertices, collision_class_names)
     return outs
 end
 
+--- Queries for colliders that intersect with a line.
+--
+-- queryLine(number, number, number, number, {string}) -> {Collider}
+--
+-- number: x1 The x position of the first point of the line
+-- number: y1 The y position of the first point of the line
+-- number: x2 The x position of the second point of the line
+-- number: y2 The y position of the second point of the line
+-- {string}: [collision_class_names='All'] A table of strings with collision class names to be queried. The special value `'All'` (default) can be used to query for all existing collision classes. Another special value `except` can be used to exclude some collision classes when `'All'` is used.
+--
+-- return: {Collider}: The table of colliders with the specified collision classes inside the area
+--
+-- usage:
+--     colliders_1 = world:queryLine(100, 100, 200, 200, {'Enemy', 'NPC', 'Projectile'})
+--     colliders_2 = world:queryLine(100, 100, 200, 200, {'All', except = {'Player'}})
 function World:queryLine(x1, y1, x2, y2, collision_class_names)
     if not collision_class_names then collision_class_names = {'All'} end
     if self.query_debug_drawing_enabled then
@@ -678,6 +869,17 @@ function World:queryLine(x1, y1, x2, y2, collision_class_names)
     return outs
 end
 
+--- Adds a joint to the world.
+--
+-- addJoint(string, any) -> Joint
+--
+-- string: joint_type The joint type, it can be `'DistanceJoint'`, `'FrictionJoint'`, `'GearJoint'`, `'MouseJoint'`, `'PrismaticJoint'`, `'PulleyJoint'`, `'RevoluteJoint'`, `'RopeJoint'`, `'WeldJoint'` or `'WheelJoint'`
+-- any: ... The joint creation arguments that are different for each joint type, check [Joint](https://love2d.org/wiki/Joint) for more details
+--
+-- return: Joint: joint The created Joint
+--
+-- usage:
+--     joint = world:addJoint('RevoluteJoint', collider_1, collider_2, 50, 50, true)
 function World:addJoint(joint_type, ...)
     local args = {...}
     if args[1].body then args[1] = args[1].body end
@@ -686,10 +888,26 @@ function World:addJoint(joint_type, ...)
     return joint
 end
 
+--- Removes a joint from the world.
+--
+-- removeJoint(Joint) -> nil
+--
+-- Joint: joint The joint to be removed
+--
+-- usage:
+--     joint = world:addJoint('RevoluteJoint', collider_1, collider_2, 50, 50, true)
+--     world:removeJoint(joint)
 function World:removeJoint(joint)
     joint:destroy()
 end
 
+--- Destroys the collider and removes it from the world.
+-- This must be called whenever the Collider is to discarded otherwise it will result in it not getting collected (and so memory will leak).
+--
+-- destroy() -> nil
+--
+-- usage:
+--     collider:destroy()
 function World:destroy()
     local bodies = self.box2d_world:getBodies()
     for _, body in ipairs(bodies) do
@@ -827,6 +1045,17 @@ function Collider:collisionEventsClear()
     end
 end
 
+--- Sets this collider's collision class.
+-- The collision class must be a valid one previously added with `world:addCollisionClass`.
+--
+-- setCollisionClass(string) -> nil
+--
+-- string: collision_class_name The name of the collision class
+--
+-- usage:
+--     world:addCollisionClass('Player')
+--     collider = world:newRectangleCollider(100, 100, 50, 50)
+--     collider:setCollisionClass('Player')
 function Collider:setCollisionClass(collision_class_name)
     if not self.world.collision_classes[collision_class_name] then error("Collision class " .. collision_class_name .. " doesn't exist.") end
     self.collision_class = collision_class_name
@@ -838,6 +1067,20 @@ function Collider:setCollisionClass(collision_class_name)
     end
 end
 
+--- Checks for collision enter events from this collider with another.
+-- Enter events are generated on the frame when one collider enters contact with another.
+--
+-- enter(string) -> boolean
+--
+-- string: other_collision_class_name The name of the target collision class
+--
+-- return: boolean: If the enter collision event between both colliders happened on this frame or not
+--
+-- usage:
+--     -- in some update function
+--     if collider:enter('Enemy') then
+--         print('Collision entered!')
+--     end
 function Collider:enter(other_collision_class_name)
     local events = self.collision_events[other_collision_class_name]
     if events and #events >= 1  then
@@ -852,10 +1095,38 @@ function Collider:enter(other_collision_class_name)
     end
 end
 
+--- Gets the collision data generated from the last collision enter event
+--
+-- getEnterCollisionData(string) -> {Collider, Contact}
+--
+-- string: other_collision_class_name The name of the target collision class
+--
+-- return: {Collider, Contact}: collision_data A table containing the Collider and the [Contact](https://love2d.org/wiki/Contact) generated from the last enter collision event
+--
+-- usage:
+--     -- in some update function
+--     if collider:enter('Enemy') then
+--         local collision_data = collider:getEnterCollisionData('Enemy')
+--         print(collision_data.collider, collision_data.contact)
+--     end
 function Collider:getEnterCollisionData(other_collision_class_name)
     return self.enter_collision_data[other_collision_class_name]
 end
 
+--- Checks for collision exit events from this collider with another.
+-- Exit events are generated on the frame when one collider exits contact with another.
+--
+-- exit(string) -> boolean
+--
+-- string: other_collision_class_name The name of the target collision class
+--
+-- return: boolean: If the exit collision event between both colliders happened on this frame or not
+--
+-- usage:
+--     -- in some update function
+--     if collider:exit('Enemy') then
+--         print('Collision exited!')
+--     end
 function Collider:exit(other_collision_class_name)
     local events = self.collision_events[other_collision_class_name]
     if events and #events >= 1  then
@@ -874,10 +1145,38 @@ function Collider:exit(other_collision_class_name)
     end
 end
 
+--- Gets the collision data generated from the last collision exit event
+--
+-- getExitCollisionData(string) -> {Collider, Contact}
+--
+-- string: other_collision_class_name The name of the target collision class
+--
+-- return: {Collider, Contact}: collision_data A table containing the Collider and the [Contact](https://love2d.org/wiki/Contact) generated from the last exit collision event
+--
+-- usage:
+--     -- in some update function
+--     if collider:exit('Enemy') then
+--         local collision_data = collider:getEnterCollisionData('Enemy')
+--         print(collision_data.collider, collision_data.contact)
+--     end
 function Collider:getExitCollisionData(other_collision_class_name)
     return self.exit_collision_data[other_collision_class_name]
 end
 
+--- Checks for collision stay events from this collider with another.
+-- Stay events are generated on every frame when one collider is in contact with another.
+--
+-- stay(string) -> boolean
+--
+-- string: other_collision_class_name The name of the target collision class
+--
+-- return: boolean: Whether the stay collision event between both colliders is happening on this frame
+--
+-- usage:
+--     -- in some update function
+--     if collider:stay('Enemy') then
+--         print('Collision staying!')
+--     end
 function Collider:stay(other_collision_class_name)
     if self.collision_stay[other_collision_class_name] then
         if #self.collision_stay[other_collision_class_name] >= 1 then
@@ -886,26 +1185,97 @@ function Collider:stay(other_collision_class_name)
     end
 end
 
+--- Gets the collision data generated from the last collision stay event
+--
+-- getStayCollisionData(string) -> {{Collider, Contact}}
+--
+-- string: other_collision_class_name The name of the target collision class
+--
+-- return: {{Collider, Contact}}: collision_data_list A table containing multiple Colliders and [Contacts](https://love2d.org/wiki/Contact) generated from the last stay collision event. Usually this list will be of size 1, but sometimes this collider will be staying in contact with multiple other colliders on the same frame, and so those multiple stay events (with multiple colliders) are returned.
+--
+-- usage:
+--     -- in some update function
+--     if collider:stay('Enemy') then
+--         local collision_data_list = collider:getStayCollisionData('Enemy')
+--         for _, collision_data in ipairs(collision_data_list) do
+--             print(collision_data.collider, collision_data.contact)
+--         end
+--     end
 function Collider:getStayCollisionData(other_collision_class_name)
     return self.collision_stay[other_collision_class_name]
 end
 
+--- Sets the preSolve callback.
+-- Unlike `:enter` or `:exit`, which can be delayed and checked after the physics simulation is done for this frame, both preSolve and postSolve must be callbacks that are resolved immediately, since they may change how the rest of the simulation plays out on this frame.
+--
+-- setPreSolve(function) -> nil
+--
+-- function: callback The preSolve callback. Receives `collider_1`, `collider_2`, and `contact` as arguments
+--
+-- usage:
+--     collider:setPreSolve(function(collider_1, collider_2, contact)
+--         contact:setEnabled(false)
+--     end
 function Collider:setPreSolve(callback)
     self.preSolve = callback
 end
 
+--- Sets the postSolve callback.
+-- Unlike `:enter` or `:exit`, which can be delayed and checked after the physics simulation is done for this frame, both preSolve and postSolve must be callbacks that are resolved immediately, since they may change how the rest of the simulation plays out on this frame.
+--
+-- setPostSolve(function) -> nil
+--
+-- function: callback The postSolve callback. Receives `collider_1`, `collider_2`, `contact`, `normal_impulse1`, `tangent_impulse1`, `normal_impulse2`, and `tangent_impulse2` as arguments
+--
+-- usage:
+--     collider:setPostSolve(function(collider_1, collider_2, contact, ni1, ti1, ni2, ti2)
+--         contact:setEnabled(false)
+--     end
 function Collider:setPostSolve(callback)
     self.postSolve = callback
 end
 
+--- Sets the collider's object.
+-- This is useful to set the object that the collider belongs to, so that when a query call is made and colliders are returned you can immediately get the pertinent object.
+--
+-- setObject(any) -> nil
+--
+-- any: object The object that this collider belongs to
+--
+-- usage:
+--     -- in the constructor of some object
+--     self.collider = world:newRectangleCollider(...)
+--     self.collider:setObject(self)
 function Collider:setObject(object)
     self.object = object
 end
 
+--- Gets the object that a collider belongs to.
+--
+-- getObject() -> any
+--
+-- return: any: object The object that is attached to this collider
+--
+-- usage:
+--     -- in an update function
+--     if self.collider:enter('Enemy') then
+--         local collision_data = self.collider:getEnterCollisionData('SomeTag')
+--         -- gets the reference to the enemy object, the enemy object must have used :setObject(self) to attach itself to the collider otherwise this wouldn't work
+--         local enemy = collision_data.collider:getObject()
+--     end
 function Collider:getObject()
     return self.object
 end
 
+--- Adds a shape to the collider.
+-- A shape can be accessed via collider.shapes[shape_name]. A fixture of the same name is also added to attach the shape to the collider body. A fixture can be accessed via collider.fixtures[fixture_name].
+--
+-- addShape(string, string, any) -> nil
+--
+-- string: shape_name The unique name of the shape
+-- string: shape_type The shape type, can be `'ChainShape'`, `'CircleShape'`, `'EdgeShape'`, `'PolygonShape'` or `'RectangleShape'`
+-- any: ... The shape creation arguments that are different for each shape. Check [Shape](https://love2d.org/wiki/Shape) for more details
+--
 function Collider:addShape(shape_name, shape_type, ...)
     if self.shapes[shape_name] or self.fixtures[shape_name] then error("Shape/fixture " .. shape_name .. " already exists.") end
     local args = {...}
@@ -925,6 +1295,12 @@ function Collider:addShape(shape_name, shape_type, ...)
     self.sensors[shape_name] = sensor
 end
 
+--- Removes a shape from the collider (also removes the accompanying fixture).
+--
+-- removeShape(string) -> nil
+--
+-- string: shape_name The unique name of the shape to be removed. Must be a name previously added with `:addShape`
+--
 function Collider:removeShape(shape_name)
     if not self.shapes[shape_name] then return end
     self.shapes[shape_name] = nil
@@ -936,6 +1312,13 @@ function Collider:removeShape(shape_name)
     self.sensors[shape_name] = nil
 end
 
+--- Destroys the collider and removes it from the world.
+-- This must be called whenever the Collider is to discarded otherwise it will result in it not getting collected (and so memory will leak).
+--
+-- destroy() -> nil
+--
+-- usage:
+--     collider:destroy()
 function Collider:destroy()
     self.collision_stay = nil
     self.enter_collision_data = nil
