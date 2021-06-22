@@ -195,19 +195,22 @@ function World:setExplicitCollisionEvents(value)
 end
 
 --- Adds a new collision class to the World.
--- Collision classes are attached to Colliders and defined their behaviors in terms of which ones will physically ignore each other and which ones will generate collision events between each other. All collision classes must be added before any Collider is created. If `world:setExplicitCollisionEvents` is set to false (the default setting) then `enter`, `exit`, `pre`, and `post` settings don't need to be specified, otherwise they do.
+-- Collision classes are attached to Colliders and defined their behaviors in terms of which ones will physically ignore each other and which ones will generate collision events between each other. All collision classes must be added before any Collider is created. If `world:setExplicitCollisionEvents` is set to false (the default setting) then `enter`, `exit`, `pre` and `post` settings don't need to be specified, otherwise they do.
 --
 -- addCollisionClass(string, table) -> nil
 --
 -- string: collision_class_name The unique name of the collision class
--- table: collision_class The collision class. This table can contain:
---   {string}: [ignores] The collision classes that will be physically ignored
---   {string}: [enter] The collision classes that will generate collision events with the collider of this collision class when they *enter* contact with each other
---   {string}: [exit] The collision classes that will generate collision events with the collider of this collision class when they *exit* contact with each other
---   {string}: [pre] The collision classes that will generate collision events with the collider of this collision class *just before* collision response is applied
---   {string}: [post] The collision classes that will generate collision events with the collider of this collision class *right after* collision response is applied
 --
--- usage:
+-- {{string}}: collision_class The collision class definition. Mostly specifying collision class names that should generate collision events with the collider of this collision class at different points in time.
+--     collision_class = {
+--          ignores = {}, -- physically ignore
+--          enter = {}, -- collision events when they *enter* contact with each other
+--          exit = {}, -- collision events when they *exit* contact with each other
+--          pre = {}, -- collision events *just before* collision response is applied
+--          post = {}, -- collision events *right after* collision response is applied
+--     }
+--
+-- usage
 --     world:addCollisionClass('Player', {ignores = {'NPC', 'Enemy'}})
 function World:addCollisionClass(collision_class_name, collision_class)
     if self.collision_classes[collision_class_name] then error('Collision class ' .. collision_class_name .. ' already exists.') end
