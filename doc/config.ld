@@ -23,6 +23,8 @@ colon=true
 
 -- ldoc uses 'bool' instead of lua's 'boolean'
 tparam_alias('boolean','bool')
+-- ldoc uses 'func' instead of lua's 'function'
+tparam_alias('function','func')
 -- ldoc doesn't seem to define an "unknown" type
 tparam_alias('any')
 

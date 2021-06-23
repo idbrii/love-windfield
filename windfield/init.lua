@@ -195,7 +195,7 @@ function World:setExplicitCollisionEvents(value)
 end
 
 --- Adds a new collision class to the World.
--- Collision classes are attached to Colliders and defined their behaviors in terms of which ones will physically ignore each other and which ones will generate collision events between each other. All collision classes must be added before any Collider is created. If `world:setExplicitCollisionEvents` is set to false (the default setting) then `enter`, `exit`, `pre` and `post` settings don't need to be specified, otherwise they do.
+-- Collision classes are attached to Colliders and defined their behaviors in terms of which ones will physically ignore each other and which ones will generate collision events between each other. All collision classes must be added before any Collider is created. If `world:setExplicitCollisionEvents` is set to false (the default setting) then *enter*, *exit*, *pre*, and *post* settings don't need to be specified, otherwise they do.
 --
 -- addCollisionClass(string, table) -> nil
 --
