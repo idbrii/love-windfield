@@ -74,8 +74,8 @@ end
 -- These links for string are distracting.
 no_lua_ref=true
 
--- Not sure how this new style is supposed to work.
---~ style='!new'
+-- New style requires ldoc newer than 1.4.6 -- straight from github.
+style='!new'
 kind_names={topic='Manual',script='Programs'}
 examples = {
     '../main.lua',
