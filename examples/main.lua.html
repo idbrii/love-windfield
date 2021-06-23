@@ -1,0 +1,280 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>windfield documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>windfield</h1>
+
+
+
+
+
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><strong>main.lua</strong></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../index.html">windfield</a></li>
+</ul>
+<h2>Manual</h2>
+<ul class="nowrap">
+  <li><a href="../manual/README.md.html">README</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>main.lua</h2>
+<pre>
+<span class="comment">-- Demonstration of examples from README.md
+</span><span class="comment">-- Press j and k to cycle through examples.
+</span>
+<span class="keyword">local</span> wf = <span class="global">require</span> <span class="string">'windfield'</span>
+<span class="keyword">local</span> world
+<span class="keyword">local</span> objs = {}
+<span class="keyword">local</span> example = {
+    index = <span class="number">1</span>,
+    title = <span class="string">''</span>,
+    on_update = <span class="keyword">nil</span>,
+    created_collision_classes = {},
+}
+
+<span class="keyword">local</span> <span class="keyword">function</span> create_geo()
+    example.title = <span class="string">"Create Geo"</span>
+    <span class="keyword">local</span> ground = world:newRectangleCollider(<span class="number">0</span>, <span class="number">550</span>, <span class="number">800</span>, <span class="number">50</span>)
+    <span class="keyword">local</span> wall_left = world:newRectangleCollider(<span class="number">0</span>, <span class="number">0</span>, <span class="number">50</span>, <span class="number">600</span>)
+    <span class="keyword">local</span> wall_right = world:newRectangleCollider(<span class="number">750</span>, <span class="number">0</span>, <span class="number">50</span>, <span class="number">600</span>)
+    ground:setType(<span class="string">'static'</span>) <span class="comment">-- Types can be 'static', 'dynamic' or 'kinematic'. Defaults to 'dynamic'
+</span>    wall_left:setType(<span class="string">'static'</span>)
+    wall_right:setType(<span class="string">'static'</span>)
+    <span class="global">table</span>.insert(objs, ground)
+    <span class="global">table</span>.insert(objs, wall_left)
+    <span class="global">table</span>.insert(objs, wall_right)
+<span class="keyword">end</span>
+
+<span class="keyword">local</span> <span class="keyword">function</span> create_colliders()
+    create_geo()
+
+    example.title = <span class="string">"Create Colliders"</span>
+    <span class="keyword">local</span> box = world:newRectangleCollider(<span class="number">400</span> - <span class="number">50</span>/<span class="number">2</span>, <span class="number">0</span>, <span class="number">50</span>, <span class="number">50</span>)
+    box:setRestitution(<span class="number">0.8</span>)
+    box:applyAngularImpulse(<span class="number">5000</span>)
+    <span class="global">table</span>.insert(objs, box)
+<span class="keyword">end</span>
+
+<span class="keyword">local</span> <span class="keyword">function</span> create_joints()
+    create_geo()
+
+    example.title = <span class="string">"Create Joints"</span>
+    <span class="keyword">local</span> box_1 = world:newRectangleCollider(<span class="number">400</span> - <span class="number">50</span>/<span class="number">2</span>, <span class="number">0</span>, <span class="number">50</span>, <span class="number">50</span>)
+    box_1:setRestitution(<span class="number">0.8</span>)
+    <span class="keyword">local</span> box_2 = world:newRectangleCollider(<span class="number">400</span> - <span class="number">50</span>/<span class="number">2</span>, <span class="number">50</span>, <span class="number">50</span>, <span class="number">50</span>)
+    box_2:setRestitution(<span class="number">0.8</span>)
+    box_2:applyAngularImpulse(<span class="number">5000</span>)
+    <span class="keyword">local</span> joint = world:addJoint(<span class="string">'RevoluteJoint'</span>, box_1, box_2, <span class="number">400</span>, <span class="number">50</span>, <span class="keyword">true</span>)
+    <span class="global">table</span>.insert(objs, box_1)
+    <span class="global">table</span>.insert(objs, box_2)
+    <span class="comment">-- Don't need to track joint because it's destroyed when its associated
+</span>    <span class="comment">-- bodies are destroyed.
+</span><span class="keyword">end</span>
+
+<span class="keyword">local</span> <span class="keyword">function</span> create_collision_classes()
+    example.title = <span class="string">"Create Collision Classes"</span>
+    <span class="keyword">if</span> <span class="keyword">not</span> example.created_collision_classes[example.title] <span class="keyword">then</span>
+        example.created_collision_classes[example.title] = <span class="keyword">true</span>
+        world:addCollisionClass(<span class="string">'Solid'</span>)
+        world:addCollisionClass(<span class="string">'Ghost'</span>, {ignores = {<span class="string">'Solid'</span>}})
+    <span class="keyword">end</span>
+
+    <span class="keyword">local</span> box_1 = world:newRectangleCollider(<span class="number">400</span> - <span class="number">100</span>, <span class="number">0</span>, <span class="number">50</span>, <span class="number">50</span>)
+    box_1:setRestitution(<span class="number">0.8</span>)
+    <span class="keyword">local</span> box_2 = world:newRectangleCollider(<span class="number">400</span> + <span class="number">50</span>, <span class="number">0</span>, <span class="number">50</span>, <span class="number">50</span>)
+    box_2:setCollisionClass(<span class="string">'Ghost'</span>)
+
+    <span class="keyword">local</span> ground = world:newRectangleCollider(<span class="number">0</span>, <span class="number">550</span>, <span class="number">800</span>, <span class="number">50</span>)
+    ground:setType(<span class="string">'static'</span>)
+    ground:setCollisionClass(<span class="string">'Solid'</span>)
+
+    <span class="global">table</span>.insert(objs, box_1)
+    <span class="global">table</span>.insert(objs, box_2)
+    <span class="global">table</span>.insert(objs, ground)
+<span class="keyword">end</span>
+
+<span class="keyword">local</span> <span class="keyword">function</span> capture_collision_events()
+    create_collision_classes()
+    example.title = <span class="string">"Capture Collision Events"</span>
+    example.on_update = <span class="keyword">function</span>(args)
+        <span class="keyword">for</span> i,box <span class="keyword">in</span> <span class="global">ipairs</span>(objs) <span class="keyword">do</span>
+            <span class="keyword">if</span> box:enter(<span class="string">'Solid'</span>) <span class="keyword">then</span>
+                box:applyLinearImpulse(<span class="number">1000</span>, <span class="number">0</span>)
+                box:applyAngularImpulse(<span class="number">5000</span>)
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">local</span> <span class="keyword">function</span> query_the_world()
+    create_geo()
+
+    example.title = <span class="string">"Query The World - press C, R, L, or P"</span>
+    world:setQueryDebugDrawing(<span class="keyword">true</span>) <span class="comment">-- Draws the area of a query for 10 frames
+</span>    world:setGravity(<span class="number">0</span>, <span class="number">0</span>)
+
+    example.on_keypressed = <span class="keyword">function</span>(key)
+        <span class="keyword">if</span> key == <span class="string">'c'</span> <span class="keyword">then</span>
+            <span class="keyword">local</span> colliders = world:queryCircleArea(<span class="number">400</span>, <span class="number">300</span>, <span class="number">100</span>)
+            <span class="keyword">for</span> _, collider <span class="keyword">in</span> <span class="global">ipairs</span>(colliders) <span class="keyword">do</span>
+                collider:applyLinearImpulse(-<span class="number">1000</span>, <span class="number">1000</span>)
+            <span class="keyword">end</span>
+        <span class="keyword">elseif</span> key == <span class="string">'r'</span> <span class="keyword">then</span>
+            <span class="keyword">local</span> colliders = world:queryRectangleArea(<span class="number">400</span>, <span class="number">300</span>, <span class="number">100</span>, <span class="number">200</span>)
+            <span class="keyword">for</span> _, collider <span class="keyword">in</span> <span class="global">ipairs</span>(colliders) <span class="keyword">do</span>
+                collider:applyLinearImpulse(<span class="number">1000</span>, -<span class="number">1000</span>)
+            <span class="keyword">end</span>
+        <span class="keyword">elseif</span> key == <span class="string">'l'</span> <span class="keyword">then</span>
+            <span class="keyword">local</span> colliders = world:queryLine(<span class="number">40</span>, <span class="number">30</span>, <span class="number">400</span>, <span class="number">300</span>)
+            <span class="keyword">for</span> _, collider <span class="keyword">in</span> <span class="global">ipairs</span>(colliders) <span class="keyword">do</span>
+                collider:applyLinearImpulse(<span class="number">1000</span>, <span class="number">1000</span>)
+            <span class="keyword">end</span>
+        <span class="keyword">elseif</span> key == <span class="string">'p'</span> <span class="keyword">then</span>
+            <span class="keyword">local</span> colliders = world:queryPolygonArea({<span class="number">100</span>,<span class="number">200</span>, <span class="number">400</span>,<span class="number">200</span>, <span class="number">500</span>,<span class="number">400</span>, <span class="number">0</span>,<span class="number">400</span>})
+            <span class="keyword">for</span> _, collider <span class="keyword">in</span> <span class="global">ipairs</span>(colliders) <span class="keyword">do</span>
+                collider:applyLinearImpulse(<span class="number">0</span>, <span class="number">1000</span>)
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="keyword">for</span> i = <span class="number">1</span>, <span class="number">200</span> <span class="keyword">do</span>
+        <span class="global">table</span>.insert(objs, world:newRectangleCollider(love.<span class="global">math</span>.random(<span class="number">40</span>, <span class="number">760</span>), love.<span class="global">math</span>.random(<span class="number">40</span>, <span class="number">560</span>), <span class="number">25</span>, <span class="number">25</span>))
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">local</span> <span class="keyword">function</span> one_way_platforms()
+    example.title = <span class="string">"One Way Platforms - press space"</span>
+    <span class="keyword">if</span> <span class="keyword">not</span> example.created_collision_classes[example.title] <span class="keyword">then</span>
+        example.created_collision_classes[example.title] = <span class="keyword">true</span>
+        world:addCollisionClass(<span class="string">'Platform'</span>)
+        world:addCollisionClass(<span class="string">'Player'</span>)
+    <span class="keyword">end</span>
+
+    <span class="keyword">local</span> ground = world:newRectangleCollider(<span class="number">100</span>, <span class="number">500</span>, <span class="number">600</span>, <span class="number">50</span>)
+    ground:setType(<span class="string">'static'</span>)
+    <span class="keyword">local</span> platform = world:newRectangleCollider(<span class="number">350</span>, <span class="number">400</span>, <span class="number">100</span>, <span class="number">20</span>)
+    platform:setType(<span class="string">'static'</span>)
+    platform:setCollisionClass(<span class="string">'Platform'</span>)
+    <span class="keyword">local</span> player = world:newRectangleCollider(<span class="number">390</span>, <span class="number">450</span>, <span class="number">20</span>, <span class="number">40</span>)
+    player:setCollisionClass(<span class="string">'Player'</span>)
+    <span class="global">table</span>.insert(objs, ground)
+    <span class="global">table</span>.insert(objs, platform)
+    <span class="global">table</span>.insert(objs, player)
+
+    player:setPreSolve(<span class="keyword">function</span>(collider_1, collider_2, contact)
+        <span class="keyword">if</span> collider_1.collision_class == <span class="string">'Player'</span> <span class="keyword">and</span> collider_2.collision_class == <span class="string">'Platform'</span> <span class="keyword">then</span>
+            <span class="keyword">local</span> px, py = collider_1:getPosition()
+            <span class="keyword">local</span> pw, ph = <span class="number">20</span>, <span class="number">40</span>
+            <span class="keyword">local</span> tx, ty = collider_2:getPosition()
+            <span class="keyword">local</span> tw, th = <span class="number">100</span>, <span class="number">20</span>
+            <span class="keyword">if</span> py + ph/<span class="number">2</span> &gt; ty - th/<span class="number">2</span> <span class="keyword">then</span> contact:setEnabled(<span class="keyword">false</span>) <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>)
+
+    example.on_keypressed = <span class="keyword">function</span>(key)
+        <span class="keyword">if</span> key == <span class="string">'space'</span> <span class="keyword">then</span>
+            player:applyLinearImpulse(<span class="number">0</span>, -<span class="number">700</span>)
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+
+<span class="keyword">local</span> example_list = {
+    create_colliders,
+    create_joints,
+    create_collision_classes,
+    capture_collision_events,
+    query_the_world,
+    one_way_platforms,
+}
+
+<span class="comment">-- Loops input value i within range [1, n]. Useful for circular lists.
+</span><span class="keyword">local</span> <span class="keyword">function</span> loop(i, n)
+  <span class="keyword">local</span> z = i - <span class="number">1</span>
+  <span class="keyword">return</span> (z % n) + <span class="number">1</span>
+<span class="keyword">end</span>
+
+<span class="keyword">local</span> <span class="keyword">function</span> noop(...) <span class="keyword">end</span>
+<span class="keyword">local</span> <span class="keyword">function</span> switch_example(direction)
+    example.index = loop(example.index + direction, #example_list)
+    <span class="comment">-- Reset state.
+</span>    <span class="keyword">for</span> i,collider <span class="keyword">in</span> <span class="global">ipairs</span>(objs) <span class="keyword">do</span>
+        collider:destroy()
+    <span class="keyword">end</span>
+    objs = {}
+    world:setGravity(<span class="number">0</span>, <span class="number">512</span>)
+    world:setQueryDebugDrawing(<span class="keyword">false</span>)
+    example.on_update = noop
+    example.on_keypressed = noop
+
+    example_list[example.index]()
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> love.<span class="global">load</span>()
+    world = wf.newWorld(<span class="number">0</span>, <span class="number">0</span>, <span class="keyword">true</span>)
+    world:setGravity(<span class="number">0</span>, <span class="number">512</span>)
+    switch_example(<span class="number">0</span>)
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> love.draw()
+    love.graphics.<span class="global">print</span>(example.title, <span class="number">80</span>,<span class="number">20</span>)
+    world:draw() <span class="comment">-- The world can be drawn for debugging purposes
+</span><span class="keyword">end</span>
+
+<span class="keyword">function</span> love.update(dt)
+    world:update(dt)
+    example.on_update()
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> love.keypressed(key)
+    <span class="comment">-- Query the world with p
+</span>    <span class="keyword">if</span> key == <span class="string">'j'</span> <span class="keyword">then</span>
+        switch_example(<span class="number">1</span>)
+    <span class="keyword">elseif</span> key == <span class="string">'k'</span> <span class="keyword">then</span>
+        switch_example(-<span class="number">1</span>)
+    <span class="keyword">elseif</span> key == <span class="string">'escape'</span> <span class="keyword">then</span>
+        love.event.quit()
+    <span class="keyword">end</span>
+    example.on_keypressed(key)
+<span class="keyword">end</span></pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2021-06-23 05:38:57 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

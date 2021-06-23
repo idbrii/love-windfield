@@ -1,0 +1,400 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>windfield documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>windfield</h1>
+
+
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Create_a_world">Create a world </a></li>
+<li><a href="#Create_colliders">Create colliders </a></li>
+<li><a href="#Create_joints">Create joints </a></li>
+<li><a href="#Create_collision_classes">Create collision classes </a></li>
+<li><a href="#Capture_collision_events">Capture collision events </a></li>
+<li><a href="#Query_the_world">Query the world </a></li>
+<li><a href="#Checking_collisions_between_game_objects">Checking collisions between game objects </a></li>
+<li><a href="#One_way_Platforms">One-way Platforms </a></li>
+</ul>
+
+
+<h2>Manual</h2>
+<ul class="nowrap">
+  <li><strong>README</strong></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../index.html">windfield</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/main.lua.html">main.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <strong>windfield</strong> is a physics module for LÖVE. It wraps LÖVE's physics API so that using box2d becomes as simple as possible.</p>
+
+<h1>Contents</h1>
+
+<ul>
+    <li><a href="#quick-start">Quick Start</a></li>
+    <li><a href="#create-a-world">Create a world</a></li>
+    <li><a href="#create-colliders">Create colliders</a></li>
+    <li><a href="#create-joints">Create joints</a></li>
+    <li><a href="#create-collision-classes">Create collision classes</a></li>
+    <li><a href="#capture-collision-events">Capture collision events</a></li>
+    <li><a href="#query-the-world">Query the world</a></li>
+    <li><a href="#examples-tips">Examples &amp; Tips</a></li>
+    <li><a href="#checking-collisions-between-game-objects">Checking collisions between game objects</a></li>
+    <li><a href="#one-way-platforms">One-way Platforms</a></li>
+</ul>
+
+<p><br></p>
+
+<h1>Quick Start</h1>
+
+<p><em>See main.lua in the root of the repository for a runnable version of these examples.</em></p>
+
+<p>Place the <a href="../index.html#">windfield</a> folder inside your project and require it:</p>
+
+
+<pre>
+wf = <span class="global">require</span> <span class="string">'windfield'</span>
+</pre>
+
+<br>
+
+<a name="Create_a_world"></a>
+## Create a world
+
+A physics world can be created just like in box2d. The world returned by <a href="../index.html#wf.newWorld">wf.newWorld</a> contains all the functions of a [LÖVE physics World](https://love2d.org/wiki/World) as well as additional ones defined by this library.
+
+<pre>
+<span class="keyword">function</span> love.<span class="global">load</span>()
+    world = wf.newWorld(<span class="number">0</span>, <span class="number">0</span>, <span class="keyword">true</span>)
+    world:setGravity(<span class="number">0</span>, <span class="number">512</span>)
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> love.update(dt)
+    world:update(dt)
+<span class="keyword">end</span>
+</pre>
+
+<br>
+
+<a name="Create_colliders"></a>
+## Create colliders
+
+A collider is a composition of a single body, fixture, and shape. For most use cases whenever box2d is needed a body will only have one fixture/shape attached to it, so it makes sense to work primarily on that level of abstraction. Colliders contain all the functions of a LÖVE physics [Body](https://love2d.org/wiki/Body), [Fixture](https://love2d.org/wiki/Fixture) and [Shape](https://love2d.org/wiki/Shape) as well as additional ones defined by this library:
+
+<pre>
+<span class="keyword">function</span> love.<span class="global">load</span>()
+    ...
+
+    box = world:newRectangleCollider(<span class="number">400</span> - <span class="number">50</span>/<span class="number">2</span>, <span class="number">0</span>, <span class="number">50</span>, <span class="number">50</span>)
+    box:setRestitution(<span class="number">0.8</span>)
+    box:applyAngularImpulse(<span class="number">5000</span>)
+
+    ground = world:newRectangleCollider(<span class="number">0</span>, <span class="number">550</span>, <span class="number">800</span>, <span class="number">50</span>)
+    wall_left = world:newRectangleCollider(<span class="number">0</span>, <span class="number">0</span>, <span class="number">50</span>, <span class="number">600</span>)
+    wall_right = world:newRectangleCollider(<span class="number">750</span>, <span class="number">0</span>, <span class="number">50</span>, <span class="number">600</span>)
+    ground:setType(<span class="string">'static'</span>) <span class="comment">-- Types can be 'static', 'dynamic' or 'kinematic'. Defaults to 'dynamic'
+</span>    wall_left:setType(<span class="string">'static'</span>)
+    wall_right:setType(<span class="string">'static'</span>)
+<span class="keyword">end</span>
+
+...
+
+<span class="keyword">function</span> love.draw()
+    world:draw() <span class="comment">-- The world can be drawn for debugging purposes
+</span><span class="keyword">end</span>
+</pre>
+
+And that looks like this:
+
+<p align="center">
+  <img src="http://i.imgur.com/ytfhmjc.gif"/>
+</p>
+
+
+<p><br></p>
+
+<p><a name="Create_joints"></a></p>
+<h2>Create joints</h2>
+
+<p>Joints are mostly unchanged from how they work normally in box2d:</p>
+
+
+<pre>
+<span class="keyword">function</span> love.<span class="global">load</span>()
+    ...
+
+    box_1 = world:newRectangleCollider(<span class="number">400</span> - <span class="number">50</span>/<span class="number">2</span>, <span class="number">0</span>, <span class="number">50</span>, <span class="number">50</span>)
+    box_1:setRestitution(<span class="number">0.8</span>)
+    box_2 = world:newRectangleCollider(<span class="number">400</span> - <span class="number">50</span>/<span class="number">2</span>, <span class="number">50</span>, <span class="number">50</span>, <span class="number">50</span>)
+    box_2:setRestitution(<span class="number">0.8</span>)
+    box_2:applyAngularImpulse(<span class="number">5000</span>)
+    joint = world:addJoint(<span class="string">'RevoluteJoint'</span>, box_1, box_2, <span class="number">400</span>, <span class="number">50</span>, <span class="keyword">true</span>)
+
+    ...
+<span class="keyword">end</span>
+</pre>
+
+And that looks like this:
+
+<p align="center">
+  <img src="http://i.imgur.com/tSqkxJR.gif"/>
+</p>
+
+
+<p><br></p>
+
+<p><a name="Create_collision_classes"></a></p>
+<h2>Create collision classes</h2>
+
+<p>Collision classes are used to make colliders ignore other colliders of certain classes and to capture collision events between colliders. The same concept goes by the name of 'collision layer' or 'collision tag' in other engines. In the example below we add a Solid and Ghost collision class. The Ghost collision class is set to ignore the Solid collision class.</p>
+
+
+<pre>
+<span class="keyword">function</span> love.<span class="global">load</span>()
+    ...
+
+    world:addCollisionClass(<span class="string">'Solid'</span>)
+    world:addCollisionClass(<span class="string">'Ghost'</span>, {ignores = {<span class="string">'Solid'</span>}})
+
+    box_1 = world:newRectangleCollider(<span class="number">400</span> - <span class="number">100</span>, <span class="number">0</span>, <span class="number">50</span>, <span class="number">50</span>)
+    box_1:setRestitution(<span class="number">0.8</span>)
+    box_2 = world:newRectangleCollider(<span class="number">400</span> + <span class="number">50</span>, <span class="number">0</span>, <span class="number">50</span>, <span class="number">50</span>)
+    box_2:setCollisionClass(<span class="string">'Ghost'</span>)
+
+    ground = world:newRectangleCollider(<span class="number">0</span>, <span class="number">550</span>, <span class="number">800</span>, <span class="number">50</span>)
+    ground:setType(<span class="string">'static'</span>)
+    ground:setCollisionClass(<span class="string">'Solid'</span>)
+
+    ...
+<span class="keyword">end</span>
+</pre>
+
+And that looks like this:
+
+<p align="center">
+  <img src="http://i.imgur.com/j7IhVSe.gif"/>
+</p>
+
+
+<p>The box that was set be of the Ghost collision class ignored the ground and went right through it, since the ground is set to be of the Solid collision class.</p>
+
+<p><br></p>
+
+<p><a name="Capture_collision_events"></a></p>
+<h2>Capture collision events</h2>
+
+<p>Collision events can be captured inside the update function by calling the <a href="../index.html#Collider:enter">enter</a>, <a href="../index.html#Collider:exit">exit</a> or <a href="../index.html#Collider:stay">stay</a> functions of a collider. In the example below, whenever the box collider enters contact with another collider of the Solid collision class it will get pushed to the right:</p>
+
+
+<pre>
+<span class="keyword">function</span> love.update(dt)
+    ...
+    <span class="keyword">if</span> box:enter(<span class="string">'Solid'</span>) <span class="keyword">then</span>
+        box:applyLinearImpulse(<span class="number">1000</span>, <span class="number">0</span>)
+        box:applyAngularImpulse(<span class="number">5000</span>)
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre>
+
+And that looks like this:
+
+<p align="center">
+  <img src="http://i.imgur.com/uF1bqKM.gif"/>
+</p>
+
+
+<p><br></p>
+
+<p><a name="Query_the_world"></a></p>
+<h2>Query the world</h2>
+
+<p>The world can be queried with a few area functions and then all colliders inside that area will be returned. In the example below, the world is queried at position 400, 300 with a circle of radius 100, and then all colliders in that area are pushed to the right and down.</p>
+
+
+<pre>
+<span class="keyword">function</span> love.<span class="global">load</span>()
+    world = wf.newWorld(<span class="number">0</span>, <span class="number">0</span>, <span class="keyword">true</span>)
+    world:setQueryDebugDrawing(<span class="keyword">true</span>) <span class="comment">-- Draws the area of a query for 10 frames
+</span>
+    colliders = {}
+    <span class="keyword">for</span> i = <span class="number">1</span>, <span class="number">200</span> <span class="keyword">do</span>
+        <span class="global">table</span>.insert(colliders, world:newRectangleCollider(love.<span class="global">math</span>.random(<span class="number">0</span>, <span class="number">800</span>), love.<span class="global">math</span>.random(<span class="number">0</span>, <span class="number">600</span>), <span class="number">25</span>, <span class="number">25</span>))
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> love.update(dt)
+    world:update(dt)
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> love.draw()
+    world:draw()
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> love.keypressed(key)
+    <span class="keyword">if</span> key == <span class="string">'c'</span> <span class="keyword">then</span>
+        <span class="keyword">local</span> colliders = world:queryCircleArea(<span class="number">400</span>, <span class="number">300</span>, <span class="number">100</span>)
+        <span class="keyword">for</span> _, collider <span class="keyword">in</span> <span class="global">ipairs</span>(colliders) <span class="keyword">do</span>
+            collider:applyLinearImpulse(<span class="number">1000</span>, <span class="number">1000</span>)
+        <span class="keyword">end</span>
+    <span class="keyword">elseif</span> key == <span class="string">'r'</span> <span class="keyword">then</span>
+        <span class="keyword">local</span> colliders = world:queryRectangleArea(<span class="number">400</span>, <span class="number">300</span>, <span class="number">100</span>, <span class="number">200</span>)
+        <span class="keyword">for</span> _, collider <span class="keyword">in</span> <span class="global">ipairs</span>(colliders) <span class="keyword">do</span>
+            collider:applyLinearImpulse(<span class="number">1000</span>, <span class="number">1000</span>)
+        <span class="keyword">end</span>
+    <span class="keyword">elseif</span> key == <span class="string">'l'</span> <span class="keyword">then</span>
+        <span class="keyword">local</span> colliders = world:queryLine(<span class="number">40</span>, <span class="number">30</span>, <span class="number">400</span>, <span class="number">300</span>)
+        <span class="keyword">for</span> _, collider <span class="keyword">in</span> <span class="global">ipairs</span>(colliders) <span class="keyword">do</span>
+            collider:applyLinearImpulse(<span class="number">1000</span>, <span class="number">1000</span>)
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre>
+
+And that looks like this:
+
+<p align="center">
+  <img src="http://i.imgur.com/YVxAiuu.gif"/>
+</p>
+
+
+<p><br></p>
+
+<h1>Examples &amp; Tips</h1>
+
+<p><a name="Checking_collisions_between_game_objects"></a></p>
+<h2>Checking collisions between game objects</h2>
+
+<p>The most common use case for a physics engine is doing things when things collide. For instance, when the Player collides with an enemy you might want to deal damage to the player. Here's the way to achieve that with this library:</p>
+
+
+
+<pre>
+<span class="comment">-- in Player.lua
+</span><span class="keyword">function</span> Player:new()
+  self.collider = world:newRectangleCollider(...)
+  self.collider:setCollisionClass(<span class="string">'Player'</span>)
+  self.collider:setObject(self)
+<span class="keyword">end</span>
+
+<span class="comment">-- in Enemy.lua
+</span><span class="keyword">function</span> Enemy:new()
+  self.collider = world:newRectangleCollider(...)
+  self.collider:setCollisionClass(<span class="string">'Enemy'</span>)
+  self.collider:setObject(self)
+<span class="keyword">end</span>
+</pre>
+
+First we define in the constructor of both classes the collider that should be attached to them. We set their collision classes (Player and Enemy) and then link the object to the colliders with <a href="../index.html#Collider:setObject">setObject</a>. With this, we can capture collision events between both and then do whatever we wish when a collision happens:
+
+<pre>
+<span class="comment">-- in Player.lua
+</span><span class="keyword">function</span> Player:update(dt)
+  <span class="keyword">if</span> self.collider:enter(<span class="string">'Enemy'</span>) <span class="keyword">then</span>
+    <span class="keyword">local</span> collision_data = self.collider:getEnterCollisionData(<span class="string">'Enemy'</span>)
+    <span class="keyword">local</span> enemy = collision_data.collider:getObject()
+    <span class="comment">-- Kills the enemy on hit but also take damage
+</span>    enemy:die()
+    self:takeDamage(<span class="number">10</span>)
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre>
+
+<br>
+
+<a name="One_way_Platforms"></a>
+## One-way Platforms
+
+A common problem people have with using 2D physics engines seems to be getting one-way platforms to work. Here's one way to achieve this with this library:
+
+<pre>
+<span class="keyword">function</span> love.<span class="global">load</span>()
+  world = wf.newWorld(<span class="number">0</span>, <span class="number">512</span>, <span class="keyword">true</span>)
+  world:addCollisionClass(<span class="string">'Platform'</span>)
+  world:addCollisionClass(<span class="string">'Player'</span>)
+
+  ground = world:newRectangleCollider(<span class="number">100</span>, <span class="number">500</span>, <span class="number">600</span>, <span class="number">50</span>)
+  ground:setType(<span class="string">'static'</span>)
+  platform = world:newRectangleCollider(<span class="number">350</span>, <span class="number">400</span>, <span class="number">100</span>, <span class="number">20</span>)
+  platform:setType(<span class="string">'static'</span>)
+  platform:setCollisionClass(<span class="string">'Platform'</span>)
+  player = world:newRectangleCollider(<span class="number">390</span>, <span class="number">450</span>, <span class="number">20</span>, <span class="number">40</span>)
+  player:setCollisionClass(<span class="string">'Player'</span>)
+
+  player:setPreSolve(<span class="keyword">function</span>(collider_1, collider_2, contact)
+    <span class="keyword">if</span> collider_1.collision_class == <span class="string">'Player'</span> <span class="keyword">and</span> collider_2.collision_class == <span class="string">'Platform'</span> <span class="keyword">then</span>
+      <span class="keyword">local</span> px, py = collider_1:getPosition()
+      <span class="keyword">local</span> pw, ph = <span class="number">20</span>, <span class="number">40</span>
+      <span class="keyword">local</span> tx, ty = collider_2:getPosition()
+      <span class="keyword">local</span> tw, th = <span class="number">100</span>, <span class="number">20</span>
+      <span class="keyword">if</span> py + ph/<span class="number">2</span> &gt; ty - th/<span class="number">2</span> <span class="keyword">then</span> contact:setEnabled(<span class="keyword">false</span>) <span class="keyword">end</span>
+    <span class="keyword">end</span>
+  <span class="keyword">end</span>)
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> love.keypressed(key)
+  <span class="keyword">if</span> key == <span class="string">'space'</span> <span class="keyword">then</span>
+    player:applyLinearImpulse(<span class="number">0</span>, -<span class="number">700</span>)
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre>
+
+And that looks like this:
+
+<p align="center">
+  <img src="http://i.imgur.com/ouwxVRH.gif"/>
+</p>
+
+
+<p>The way this works is that by disabling the contact before collision response is applied (so in the preSolve callback) we can make a collider ignore another. And then all we do is check to see if the player is below platform, and if he is then we disable the contact.</p>
+
+<p><br></p>
+
+<h1>LICENSE</h1>
+
+<p>MIT.</p>
+
+<p>You can do whatever you want with this. See the license at the top of windfield/init.lua</p>
+
+<p>Contains davisdude/mlib under zlib license.
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2021-06-23 05:38:57 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

@@ -1,0 +1,1369 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>windfield documentation</title>
+    <link rel="stylesheet" href="ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>windfield</h1>
+
+
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><strong>windfield</strong></li>
+</ul>
+<h2>Manual</h2>
+<ul class="nowrap">
+  <li><a href="manual/README.md.html">README</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="examples/main.lua.html">main.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>windfield</code></h1>
+<p>windfield is a physics module for LÖVE.</p>
+<p> It wraps LÖVE's physics API so that
+ using box2d becomes as simple as possible.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#wf.newWorld">wf.newWorld (xg, yg, sleep)</a></td>
+	<td class="summary">Creates a new World.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#World:update">World:update (dt)</a></td>
+	<td class="summary">Updates the world to allow bodies to continue their motion and starts a new frame for collision events.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#World:draw">World:draw (alpha)</a></td>
+	<td class="summary">Draws the world visualizing colliders, joints, and world queries (for debugging purposes).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#World:setQueryDebugDrawing">World:setQueryDebugDrawing (value)</a></td>
+	<td class="summary">Sets query debug drawing to be active or not.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#World:setExplicitCollisionEvents">World:setExplicitCollisionEvents (value)</a></td>
+	<td class="summary">Sets collision events to be explicit or not.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#World:addCollisionClass">World:addCollisionClass (collision_class_name, collision_class)</a></td>
+	<td class="summary">Adds a new collision class to the World.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#World:newCircleCollider">World:newCircleCollider (x, y, r)</a></td>
+	<td class="summary">Creates a new CircleCollider.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#World:newRectangleCollider">World:newRectangleCollider (x, y, w, h)</a></td>
+	<td class="summary">Creates a new RectangleCollider.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#World:newBSGRectangleCollider">World:newBSGRectangleCollider (x, y, w, h, corner_cut_size)</a></td>
+	<td class="summary">Creates a new BSGRectangleCollider, which is a rectangle with its corners cut (an octagon).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#World:newPolygonCollider">World:newPolygonCollider (vertices)</a></td>
+	<td class="summary">Creates a new PolygonCollider.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#World:newLineCollider">World:newLineCollider (x1, y1, x2, y2)</a></td>
+	<td class="summary">Creates a new LineCollider.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#World:newChainCollider">World:newChainCollider (vertices, loop)</a></td>
+	<td class="summary">Creates a new ChainCollider.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#World:queryCircleArea">World:queryCircleArea (x, y, radius, collision_class_names)</a></td>
+	<td class="summary">Queries a circular area around a point for colliders.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#World:queryRectangleArea">World:queryRectangleArea (x, y, w, h, collision_class_names)</a></td>
+	<td class="summary">Queries a rectangular area for colliders.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#World:queryPolygonArea">World:queryPolygonArea (vertices, collision_class_names)</a></td>
+	<td class="summary">Queries a polygon area for colliders.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#World:queryLine">World:queryLine (x1, y1, x2, y2, collision_class_names)</a></td>
+	<td class="summary">Queries for colliders that intersect with a line.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#World:addJoint">World:addJoint (joint_type, ...)</a></td>
+	<td class="summary">Adds a joint to the world.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#World:removeJoint">World:removeJoint (joint)</a></td>
+	<td class="summary">Removes a joint from the world.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#World:destroy">World:destroy ()</a></td>
+	<td class="summary">Destroys the collider and removes it from the world.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Collider:setCollisionClass">Collider:setCollisionClass (collision_class_name)</a></td>
+	<td class="summary">Sets this collider's collision class.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Collider:enter">Collider:enter (other_collision_class_name)</a></td>
+	<td class="summary">Checks for collision enter events from this collider with another.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Collider:getEnterCollisionData">Collider:getEnterCollisionData (other_collision_class_name)</a></td>
+	<td class="summary">Gets the collision data generated from the last collision enter event</p>
+
+<p> getEnterCollisionData(string) -> {Collider, Contact}</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Collider:exit">Collider:exit (other_collision_class_name)</a></td>
+	<td class="summary">Checks for collision exit events from this collider with another.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Collider:getExitCollisionData">Collider:getExitCollisionData (other_collision_class_name)</a></td>
+	<td class="summary">Gets the collision data generated from the last collision exit event</p>
+
+<p> getExitCollisionData(string) -> {Collider, Contact}</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Collider:stay">Collider:stay (other_collision_class_name)</a></td>
+	<td class="summary">Checks for collision stay events from this collider with another.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Collider:getStayCollisionData">Collider:getStayCollisionData (other_collision_class_name)</a></td>
+	<td class="summary">Gets the collision data generated from the last collision stay event</p>
+
+<p> getStayCollisionData(string) -> {{Collider, Contact}}</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#callback">callback ()</a></td>
+	<td class="summary">Sets the preSolve callback.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#callback">callback ()</a></td>
+	<td class="summary">Sets the postSolve callback.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Collider:setObject">Collider:setObject (object)</a></td>
+	<td class="summary">Sets the collider's object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Collider:getObject">Collider:getObject ()</a></td>
+	<td class="summary">Gets the object that a collider belongs to.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Collider:addShape">Collider:addShape (shape_name, shape_type, ...)</a></td>
+	<td class="summary">Adds a shape to the collider.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Collider:removeShape">Collider:removeShape (shape_name)</a></td>
+	<td class="summary">Removes a shape from the collider (also removes the accompanying fixture).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Collider:destroy">Collider:destroy ()</a></td>
+	<td class="summary">Destroys the collider and removes it from the world.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "wf.newWorld"></a>
+    <strong>wf.newWorld (xg, yg, sleep)</strong>
+    </dt>
+    <dd>
+    Creates a new World. </p>
+
+<p> newWorld(number, number, boolean) -> table
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">xg</span>
+            <span class="types"><span class="type">number</span></span>
+         The world's x gravity component
+        </li>
+        <li><span class="parameter">yg</span>
+            <span class="types"><span class="type">number</span></span>
+         The world's y gravity component
+        </li>
+        <li><span class="parameter">sleep</span>
+            <span class="types"><span class="type">bool</span></span>
+        =true Whether the world's bodies are allowed to sleep
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        table: World the World object, containing all attributes and methods defined below as well as all of a <a href="https://love2d.org/wiki/World">box2d World</a>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">world = wf.newWorld(<span class="number">0</span>, <span class="number">0</span>, <span class="keyword">true</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "World:update"></a>
+    <strong>World:update (dt)</strong>
+    </dt>
+    <dd>
+    Updates the world to allow bodies to continue their motion and starts a new frame for collision events. </p>
+
+<p> update(number) -> nil
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dt</span>
+            <span class="types"><span class="type">number</span></span>
+         The time step delta
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">world:update(dt)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "World:draw"></a>
+    <strong>World:draw (alpha)</strong>
+    </dt>
+    <dd>
+    Draws the world visualizing colliders, joints, and world queries (for debugging purposes). </p>
+
+<p> draw(number) -> nil
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">alpha</span>
+            <span class="types"><span class="type">number</span></span>
+        =1 The optional alpha value to use when drawing, defaults to 1.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">world:draw() <span class="comment">-- default drawing
+</span>world:draw(<span class="number">128</span>) <span class="comment">-- semi transparent drawing</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "World:setQueryDebugDrawing"></a>
+    <strong>World:setQueryDebugDrawing (value)</strong>
+    </dt>
+    <dd>
+    Sets query debug drawing to be active or not.
+ If active, then collider queries will be drawn to the screen for 10 frames. This is used for debugging purposes and incurs a performance penalty. Don't forget to turn it off!</p>
+
+<p> setQueryDebugDrawing(boolean) -> nil
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+            <span class="types"><span class="type">bool</span></span>
+         Whether query debug drawing is active
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">world:setQueryDebugDrawing(<span class="keyword">true</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "World:setExplicitCollisionEvents"></a>
+    <strong>World:setExplicitCollisionEvents (value)</strong>
+    </dt>
+    <dd>
+    Sets collision events to be explicit or not.
+ If explicit, then collision events will only be generated between collision classes when they are specified in <code>addCollisionClasses</code>. By default this is set to false, meaning that collision events are generated between all collision classes. The main reason why you might want to set this to true is for performance, since not generating collision events between every collision class will require less computation. This function must be called before any collision class is added to the world.</p>
+
+<p> setExplicitCollisionEvents(boolean) -> nil
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+            <span class="types"><span class="type">bool</span></span>
+         Whether collision events are explicit
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">world:setExplicitCollisionEvents(<span class="keyword">true</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "World:addCollisionClass"></a>
+    <strong>World:addCollisionClass (collision_class_name, collision_class)</strong>
+    </dt>
+    <dd>
+    Adds a new collision class to the World.
+ Collision classes are attached to Colliders and defined their behaviors in terms of which ones will physically ignore each other and which ones will generate collision events between each other. All collision classes must be added before any Collider is created. If <code>world:setExplicitCollisionEvents</code> is set to false (the default setting) then <a href="index.html#Collider:enter">enter</a>, <a href="index.html#Collider:exit">exit</a>, <code>pre</code> and <code>post</code> settings don't need to be specified, otherwise they do.</p>
+
+<p> addCollisionClass(string, table) -> nil
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">collision_class_name</span>
+            <span class="types"><span class="type">string</span></span>
+         The unique name of the collision class
+        </li>
+        <li><span class="parameter">collision_class</span>
+            <span class="types"><span class="type">{{string}}</span></span>
+
+<p> The collision class definition. Mostly specifying collision class names that should generate collision events with the collider of this collision class at different points in time.</p>
+<pre><code> collision_class = {
+      ignores = {}, -- physically ignore
+      enter = {}, -- collision events when they *enter* contact with each other
+      exit = {}, -- collision events when they *exit* contact with each other
+      pre = {}, -- collision events *just before* collision response is applied
+      post = {}, -- collision events *right after* collision response is applied
+ }
+</code></pre>
+
+<p> usage</p>
+<pre><code> world:addCollisionClass('Player', {ignores = {'NPC', 'Enemy'}})
+</code></pre>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "World:newCircleCollider"></a>
+    <strong>World:newCircleCollider (x, y, r)</strong>
+    </dt>
+    <dd>
+    Creates a new CircleCollider. </p>
+
+<p> newCircleCollider(number, number, number) -> table
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         The x position of the circle's center
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         The y position of the circle's center
+        </li>
+        <li><span class="parameter">r</span>
+            <span class="types"><span class="type">number</span></span>
+         The radius of the circle
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        table: Collider The created CircleCollider
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">circle = world:newCircleCollider(<span class="number">100</span>, <span class="number">100</span>, <span class="number">30</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "World:newRectangleCollider"></a>
+    <strong>World:newRectangleCollider (x, y, w, h)</strong>
+    </dt>
+    <dd>
+    Creates a new RectangleCollider. </p>
+
+<p> newRectangleCollider(number, number, number, number) -> table
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         The x position of the rectangle's top-left corner
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         The y position of the rectangle's top-left corner
+        </li>
+        <li><span class="parameter">w</span>
+            <span class="types"><span class="type">number</span></span>
+         The width of the rectangle
+        </li>
+        <li><span class="parameter">h</span>
+            <span class="types"><span class="type">number</span></span>
+         The height of the rectangle
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        table: Collider The created RectangleCollider
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">rectangle = world:newRectangleCollider(<span class="number">100</span>, <span class="number">100</span>, <span class="number">50</span>, <span class="number">50</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "World:newBSGRectangleCollider"></a>
+    <strong>World:newBSGRectangleCollider (x, y, w, h, corner_cut_size)</strong>
+    </dt>
+    <dd>
+    Creates a new BSGRectangleCollider, which is a rectangle with its corners cut (an octagon). </p>
+
+<p> newBSGRectangleCollider(number, number, number, number, number) -> table
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         The x position of the rectangle's top-left corner
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         The y position of the rectangle's top-left corner
+        </li>
+        <li><span class="parameter">w</span>
+            <span class="types"><span class="type">number</span></span>
+         The width of the rectangle
+        </li>
+        <li><span class="parameter">h</span>
+            <span class="types"><span class="type">number</span></span>
+         The height of the rectangle
+        </li>
+        <li><span class="parameter">corner_cut_size</span>
+            <span class="types"><span class="type">number</span></span>
+         The corner cut size
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        table: Collider The created BSGRectangleCollider
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">bsg_rectangle = world:newBSGRectangleCollider(<span class="number">100</span>, <span class="number">100</span>, <span class="number">50</span>, <span class="number">50</span>, <span class="number">5</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "World:newPolygonCollider"></a>
+    <strong>World:newPolygonCollider (vertices)</strong>
+    </dt>
+    <dd>
+    Creates a new PolygonCollider. </p>
+
+<p> newPolygonCollider({number}) -> table
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">vertices</span>
+            <span class="types"><span class="type">{number}</span></span>
+         The polygon vertices as a table of numbers
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        table: Collider The created PolygonCollider
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">polygon = world:newPolygonCollider({<span class="number">10</span>, <span class="number">10</span>, <span class="number">10</span>, <span class="number">20</span>, <span class="number">20</span>, <span class="number">20</span>, <span class="number">20</span>, <span class="number">10</span>})</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "World:newLineCollider"></a>
+    <strong>World:newLineCollider (x1, y1, x2, y2)</strong>
+    </dt>
+    <dd>
+    Creates a new LineCollider. </p>
+
+<p> newLineCollider(number, number, number, number) -> table
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x1</span>
+            <span class="types"><span class="type">number</span></span>
+         The x position of the first point of the line
+        </li>
+        <li><span class="parameter">y1</span>
+            <span class="types"><span class="type">number</span></span>
+         The y position of the first point of the line
+        </li>
+        <li><span class="parameter">x2</span>
+            <span class="types"><span class="type">number</span></span>
+         The x position of the second point of the line
+        </li>
+        <li><span class="parameter">y2</span>
+            <span class="types"><span class="type">number</span></span>
+         The y position of the second point of the line
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        table: Collider The created LineCollider
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">line = world:newLineCollider(<span class="number">100</span>, <span class="number">100</span>, <span class="number">200</span>, <span class="number">200</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "World:newChainCollider"></a>
+    <strong>World:newChainCollider (vertices, loop)</strong>
+    </dt>
+    <dd>
+    Creates a new ChainCollider. </p>
+
+<p> newChainCollider({number}, boolean) -> table
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">vertices</span>
+            <span class="types"><span class="type">{number}</span></span>
+         The chain vertices as a table of numbers
+        </li>
+        <li><span class="parameter">loop</span>
+            <span class="types"><span class="type">bool</span></span>
+         If the chain should loop back from the last to the first point
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        table: Collider The created ChainCollider
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">chain = world:newChainCollider({<span class="number">10</span>, <span class="number">10</span>, <span class="number">10</span>, <span class="number">20</span>, <span class="number">20</span>, <span class="number">20</span>}, <span class="keyword">true</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "World:queryCircleArea"></a>
+    <strong>World:queryCircleArea (x, y, radius, collision_class_names)</strong>
+    </dt>
+    <dd>
+    Queries a circular area around a point for colliders. </p>
+
+<p> queryCircleArea(number, number, number, {string}) -> {Collider}
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         The x position of the circle's center
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         The y position of the circle's center
+        </li>
+        <li><span class="parameter">radius</span>
+            <span class="types"><span class="type">number</span></span>
+         The radius of the circle
+        </li>
+        <li><span class="parameter">collision_class_names</span>
+            <span class="types"><span class="type">{string}</span></span>
+        ='All'] A table of strings with collision class names to be queried. The special value <code>&apos;All&apos;</code> (default) can be used to query for all existing collision classes. Another special value <code>except</code> can be used to exclude some collision classes when <code>&apos;All&apos;</code> is used.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        {Collider}: The table of colliders with the specified collision classes inside the area
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">colliders_1 = world:queryCircleArea(<span class="number">100</span>, <span class="number">100</span>, <span class="number">50</span>, {<span class="string">'Enemy'</span>, <span class="string">'NPC'</span>})
+colliders_2 = world:queryCircleArea(<span class="number">100</span>, <span class="number">100</span>, <span class="number">50</span>, {<span class="string">'All'</span>, except = {<span class="string">'Player'</span>}})
+</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "World:queryRectangleArea"></a>
+    <strong>World:queryRectangleArea (x, y, w, h, collision_class_names)</strong>
+    </dt>
+    <dd>
+    Queries a rectangular area for colliders. </p>
+
+<p> queryRectangleArea(number, number, number, number, {string}) -> {Collider}
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         The x position of the rectangle's top-left corner
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         The y position of the rectangle's top-left corner
+        </li>
+        <li><span class="parameter">w</span>
+            <span class="types"><span class="type">number</span></span>
+         The width of the rectangle
+        </li>
+        <li><span class="parameter">h</span>
+            <span class="types"><span class="type">number</span></span>
+         The height of the rectangle
+        </li>
+        <li><span class="parameter">collision_class_names</span>
+            <span class="types"><span class="type">{string}</span></span>
+        ='All'] A table of strings with collision class names to be queried. The special value <code>&apos;All&apos;</code> (default) can be used to query for all existing collision classes. Another special value <code>except</code> can be used to exclude some collision classes when <code>&apos;All&apos;</code> is used.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        {Collider}: The table of colliders with the specified collision classes inside the area
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">colliders_1 = world:queryRectangleArea(<span class="number">100</span>, <span class="number">100</span>, <span class="number">50</span>, <span class="number">50</span>, {<span class="string">'Enemy'</span>, <span class="string">'NPC'</span>})
+colliders_2 = world:queryRectangleArea(<span class="number">100</span>, <span class="number">100</span>, <span class="number">50</span>, <span class="number">50</span>, {<span class="string">'All'</span>, except = {<span class="string">'Player'</span>}})
+</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "World:queryPolygonArea"></a>
+    <strong>World:queryPolygonArea (vertices, collision_class_names)</strong>
+    </dt>
+    <dd>
+    Queries a polygon area for colliders. </p>
+
+<p> queryPolygonArea({number}, {string}) -> {Collider}
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">vertices</span>
+            <span class="types"><span class="type">{number}</span></span>
+         The polygon vertices as a table of numbers
+        </li>
+        <li><span class="parameter">collision_class_names</span>
+            <span class="types"><span class="type">{string}</span></span>
+        ='All'] A table of strings with collision class names to be queried. The special value <code>&apos;All&apos;</code> (default) can be used to query for all existing collision classes. Another special value <code>except</code> can be used to exclude some collision classes when <code>&apos;All&apos;</code> is used.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        {Collider}: The table of colliders with the specified collision classes inside the area
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">colliders_1 = world:queryPolygonArea({<span class="number">10</span>, <span class="number">10</span>, <span class="number">20</span>, <span class="number">10</span>, <span class="number">20</span>, <span class="number">20</span>, <span class="number">10</span>, <span class="number">20</span>}, {<span class="string">'Enemy'</span>})
+colliders_2 = world:queryPolygonArea({<span class="number">10</span>, <span class="number">10</span>, <span class="number">20</span>, <span class="number">10</span>, <span class="number">20</span>, <span class="number">20</span>, <span class="number">10</span>, <span class="number">20</span>}, {<span class="string">'All'</span>, except = {<span class="string">'Player'</span>}})
+</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "World:queryLine"></a>
+    <strong>World:queryLine (x1, y1, x2, y2, collision_class_names)</strong>
+    </dt>
+    <dd>
+    Queries for colliders that intersect with a line. </p>
+
+<p> queryLine(number, number, number, number, {string}) -> {Collider}
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x1</span>
+            <span class="types"><span class="type">number</span></span>
+         The x position of the first point of the line
+        </li>
+        <li><span class="parameter">y1</span>
+            <span class="types"><span class="type">number</span></span>
+         The y position of the first point of the line
+        </li>
+        <li><span class="parameter">x2</span>
+            <span class="types"><span class="type">number</span></span>
+         The x position of the second point of the line
+        </li>
+        <li><span class="parameter">y2</span>
+            <span class="types"><span class="type">number</span></span>
+         The y position of the second point of the line
+        </li>
+        <li><span class="parameter">collision_class_names</span>
+            <span class="types"><span class="type">{string}</span></span>
+        ='All'] A table of strings with collision class names to be queried. The special value <code>&apos;All&apos;</code> (default) can be used to query for all existing collision classes. Another special value <code>except</code> can be used to exclude some collision classes when <code>&apos;All&apos;</code> is used.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        {Collider}: The table of colliders with the specified collision classes inside the area
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">colliders_1 = world:queryLine(<span class="number">100</span>, <span class="number">100</span>, <span class="number">200</span>, <span class="number">200</span>, {<span class="string">'Enemy'</span>, <span class="string">'NPC'</span>, <span class="string">'Projectile'</span>})
+colliders_2 = world:queryLine(<span class="number">100</span>, <span class="number">100</span>, <span class="number">200</span>, <span class="number">200</span>, {<span class="string">'All'</span>, except = {<span class="string">'Player'</span>}})
+</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "World:addJoint"></a>
+    <strong>World:addJoint (joint_type, ...)</strong>
+    </dt>
+    <dd>
+    Adds a joint to the world. </p>
+
+<p> addJoint(string, any) -> Joint
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">joint_type</span>
+            <span class="types"><span class="type">string</span></span>
+         The joint type, it can be <code>&apos;DistanceJoint&apos;</code>, <code>&apos;FrictionJoint&apos;</code>, <code>&apos;GearJoint&apos;</code>, <code>&apos;MouseJoint&apos;</code>, <code>&apos;PrismaticJoint&apos;</code>, <code>&apos;PulleyJoint&apos;</code>, <code>&apos;RevoluteJoint&apos;</code>, <code>&apos;RopeJoint&apos;</code>, <code>&apos;WeldJoint&apos;</code> or <code>&apos;WheelJoint&apos;</code>
+        </li>
+        <li><span class="parameter">...</span>
+            <span class="types"><span class="type">any</span></span>
+         The joint creation arguments that are different for each joint type, check <a href="https://love2d.org/wiki/Joint">Joint</a> for more details
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        Joint: joint The created Joint
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">joint = world:addJoint(<span class="string">'RevoluteJoint'</span>, collider_1, collider_2, <span class="number">50</span>, <span class="number">50</span>, <span class="keyword">true</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "World:removeJoint"></a>
+    <strong>World:removeJoint (joint)</strong>
+    </dt>
+    <dd>
+    Removes a joint from the world. </p>
+
+<p> removeJoint(Joint) -> nil
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">joint</span>
+            <span class="types"><span class="type">Joint</span></span>
+         The joint to be removed
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">joint = world:addJoint(<span class="string">'RevoluteJoint'</span>, collider_1, collider_2, <span class="number">50</span>, <span class="number">50</span>, <span class="keyword">true</span>)
+world:removeJoint(joint)
+</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "World:destroy"></a>
+    <strong>World:destroy ()</strong>
+    </dt>
+    <dd>
+    Destroys the collider and removes it from the world.
+ This must be called whenever the Collider is to discarded otherwise it will result in it not getting collected (and so memory will leak).</p>
+
+<p> destroy() -> nil
+
+
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">collider:destroy()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Collider:setCollisionClass"></a>
+    <strong>Collider:setCollisionClass (collision_class_name)</strong>
+    </dt>
+    <dd>
+    Sets this collider's collision class.
+ The collision class must be a valid one previously added with <code>world:addCollisionClass</code>.</p>
+
+<p> setCollisionClass(string) -> nil
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">collision_class_name</span>
+            <span class="types"><span class="type">string</span></span>
+         The name of the collision class
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">world:addCollisionClass(<span class="string">'Player'</span>)
+collider = world:newRectangleCollider(<span class="number">100</span>, <span class="number">100</span>, <span class="number">50</span>, <span class="number">50</span>)
+collider:setCollisionClass(<span class="string">'Player'</span>)
+</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Collider:enter"></a>
+    <strong>Collider:enter (other_collision_class_name)</strong>
+    </dt>
+    <dd>
+    Checks for collision enter events from this collider with another.
+ Enter events are generated on the frame when one collider enters contact with another.</p>
+
+<p> enter(string) -> boolean
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">other_collision_class_name</span>
+            <span class="types"><span class="type">string</span></span>
+         The name of the target collision class
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean: If the enter collision event between both colliders happened on this frame or not
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="comment">-- in some update function
+</span><span class="keyword">if</span> collider:enter(<span class="string">'Enemy'</span>) <span class="keyword">then</span>
+    <span class="global">print</span>(<span class="string">'Collision entered!'</span>)
+<span class="keyword">end</span>
+</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Collider:getEnterCollisionData"></a>
+    <strong>Collider:getEnterCollisionData (other_collision_class_name)</strong>
+    </dt>
+    <dd>
+    Gets the collision data generated from the last collision enter event</p>
+
+<p> getEnterCollisionData(string) -> {Collider, Contact}
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">other_collision_class_name</span>
+            <span class="types"><span class="type">string</span></span>
+         The name of the target collision class
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        {Collider, Contact}: collision_data A table containing the Collider and the <a href="https://love2d.org/wiki/Contact">Contact</a> generated from the last enter collision event
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="comment">-- in some update function
+</span><span class="keyword">if</span> collider:enter(<span class="string">'Enemy'</span>) <span class="keyword">then</span>
+    <span class="keyword">local</span> collision_data = collider:getEnterCollisionData(<span class="string">'Enemy'</span>)
+    <span class="global">print</span>(collision_data.collider, collision_data.contact)
+<span class="keyword">end</span>
+</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Collider:exit"></a>
+    <strong>Collider:exit (other_collision_class_name)</strong>
+    </dt>
+    <dd>
+    Checks for collision exit events from this collider with another.
+ Exit events are generated on the frame when one collider exits contact with another.</p>
+
+<p> exit(string) -> boolean
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">other_collision_class_name</span>
+            <span class="types"><span class="type">string</span></span>
+         The name of the target collision class
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean: If the exit collision event between both colliders happened on this frame or not
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="comment">-- in some update function
+</span><span class="keyword">if</span> collider:exit(<span class="string">'Enemy'</span>) <span class="keyword">then</span>
+    <span class="global">print</span>(<span class="string">'Collision exited!'</span>)
+<span class="keyword">end</span>
+</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Collider:getExitCollisionData"></a>
+    <strong>Collider:getExitCollisionData (other_collision_class_name)</strong>
+    </dt>
+    <dd>
+    Gets the collision data generated from the last collision exit event</p>
+
+<p> getExitCollisionData(string) -> {Collider, Contact}
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">other_collision_class_name</span>
+            <span class="types"><span class="type">string</span></span>
+         The name of the target collision class
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        {Collider, Contact}: collision_data A table containing the Collider and the <a href="https://love2d.org/wiki/Contact">Contact</a> generated from the last exit collision event
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="comment">-- in some update function
+</span><span class="keyword">if</span> collider:exit(<span class="string">'Enemy'</span>) <span class="keyword">then</span>
+    <span class="keyword">local</span> collision_data = collider:getEnterCollisionData(<span class="string">'Enemy'</span>)
+    <span class="global">print</span>(collision_data.collider, collision_data.contact)
+<span class="keyword">end</span>
+</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Collider:stay"></a>
+    <strong>Collider:stay (other_collision_class_name)</strong>
+    </dt>
+    <dd>
+    Checks for collision stay events from this collider with another.
+ Stay events are generated on every frame when one collider is in contact with another.</p>
+
+<p> stay(string) -> boolean
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">other_collision_class_name</span>
+            <span class="types"><span class="type">string</span></span>
+         The name of the target collision class
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean: Whether the stay collision event between both colliders is happening on this frame
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="comment">-- in some update function
+</span><span class="keyword">if</span> collider:stay(<span class="string">'Enemy'</span>) <span class="keyword">then</span>
+    <span class="global">print</span>(<span class="string">'Collision staying!'</span>)
+<span class="keyword">end</span>
+</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Collider:getStayCollisionData"></a>
+    <strong>Collider:getStayCollisionData (other_collision_class_name)</strong>
+    </dt>
+    <dd>
+    Gets the collision data generated from the last collision stay event</p>
+
+<p> getStayCollisionData(string) -> {{Collider, Contact}}
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">other_collision_class_name</span>
+            <span class="types"><span class="type">string</span></span>
+         The name of the target collision class
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        {{Collider, Contact}}: collision<em>data</em>list A table containing multiple Colliders and <a href="https://love2d.org/wiki/Contact">Contacts</a> generated from the last stay collision event. Usually this list will be of size 1, but sometimes this collider will be staying in contact with multiple other colliders on the same frame, and so those multiple stay events (with multiple colliders) are returned.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="comment">-- in some update function
+</span><span class="keyword">if</span> collider:stay(<span class="string">'Enemy'</span>) <span class="keyword">then</span>
+    <span class="keyword">local</span> collision_data_list = collider:getStayCollisionData(<span class="string">'Enemy'</span>)
+    <span class="keyword">for</span> _, collision_data <span class="keyword">in</span> <span class="global">ipairs</span>(collision_data_list) <span class="keyword">do</span>
+        <span class="global">print</span>(collision_data.collider, collision_data.contact)
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "callback"></a>
+    <strong>callback ()</strong>
+    </dt>
+    <dd>
+    Sets the preSolve callback.
+ Unlike <code>:enter</code> or <code>:exit</code>, which can be delayed and checked after the physics simulation is done for this frame, both preSolve and postSolve must be callbacks that are resolved immediately, since they may change how the rest of the simulation plays out on this frame.</p>
+
+<p> setPreSolve(function) -> nil
+
+
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">collider:setPreSolve(<span class="keyword">function</span>(collider_1, collider_2, contact)
+    contact:setEnabled(<span class="keyword">false</span>)
+<span class="keyword">end</span>
+</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "callback"></a>
+    <strong>callback ()</strong>
+    </dt>
+    <dd>
+    Sets the postSolve callback.
+ Unlike <code>:enter</code> or <code>:exit</code>, which can be delayed and checked after the physics simulation is done for this frame, both preSolve and postSolve must be callbacks that are resolved immediately, since they may change how the rest of the simulation plays out on this frame.</p>
+
+<p> setPostSolve(function) -> nil
+
+
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">collider:setPostSolve(<span class="keyword">function</span>(collider_1, collider_2, contact, ni1, ti1, ni2, ti2)
+    contact:setEnabled(<span class="keyword">false</span>)
+<span class="keyword">end</span>
+</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Collider:setObject"></a>
+    <strong>Collider:setObject (object)</strong>
+    </dt>
+    <dd>
+    Sets the collider's object.
+ This is useful to set the object that the collider belongs to, so that when a query call is made and colliders are returned you can immediately get the pertinent object.</p>
+
+<p> setObject(any) -> nil
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">object</span>
+            <span class="types"><span class="type">any</span></span>
+         The object that this collider belongs to
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="comment">-- in the constructor of some object
+</span>self.collider = world:newRectangleCollider(...)
+self.collider:setObject(self)
+</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Collider:getObject"></a>
+    <strong>Collider:getObject ()</strong>
+    </dt>
+    <dd>
+    Gets the object that a collider belongs to. </p>
+
+<p> getObject() -> any
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        any: object The object that is attached to this collider
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="comment">-- in an update function
+</span><span class="keyword">if</span> self.collider:enter(<span class="string">'Enemy'</span>) <span class="keyword">then</span>
+    <span class="keyword">local</span> collision_data = self.collider:getEnterCollisionData(<span class="string">'SomeTag'</span>)
+    <span class="comment">-- gets the reference to the enemy object, the enemy object must have used :setObject(self) to attach itself to the collider otherwise this wouldn't work
+</span>    <span class="keyword">local</span> enemy = collision_data.collider:getObject()
+<span class="keyword">end</span>
+</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Collider:addShape"></a>
+    <strong>Collider:addShape (shape_name, shape_type, ...)</strong>
+    </dt>
+    <dd>
+    Adds a shape to the collider.
+ A shape can be accessed via collider.shapes[shape<em>name]. A fixture of the same name is also added to attach the shape to the collider body. A fixture can be accessed via collider.fixtures[fixture</em>name].</p>
+
+<p> addShape(string, string, any) -> nil
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">shape_name</span>
+            <span class="types"><span class="type">string</span></span>
+         The unique name of the shape
+        </li>
+        <li><span class="parameter">shape_type</span>
+            <span class="types"><span class="type">string</span></span>
+         The shape type, can be <code>&apos;ChainShape&apos;</code>, <code>&apos;CircleShape&apos;</code>, <code>&apos;EdgeShape&apos;</code>, <code>&apos;PolygonShape&apos;</code> or <code>&apos;RectangleShape&apos;</code>
+        </li>
+        <li><span class="parameter">...</span>
+            <span class="types"><span class="type">any</span></span>
+         The shape creation arguments that are different for each shape. Check <a href="https://love2d.org/wiki/Shape">Shape</a> for more details
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Collider:removeShape"></a>
+    <strong>Collider:removeShape (shape_name)</strong>
+    </dt>
+    <dd>
+    Removes a shape from the collider (also removes the accompanying fixture). </p>
+
+<p> removeShape(string) -> nil
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">shape_name</span>
+            <span class="types"><span class="type">string</span></span>
+         The unique name of the shape to be removed. Must be a name previously added with <code>:addShape</code>
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Collider:destroy"></a>
+    <strong>Collider:destroy ()</strong>
+    </dt>
+    <dd>
+    Destroys the collider and removes it from the world.
+ This must be called whenever the Collider is to discarded otherwise it will result in it not getting collected (and so memory will leak).</p>
+
+<p> destroy() -> nil
+
+
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">collider:destroy()</pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2021-06-23 05:38:57 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
