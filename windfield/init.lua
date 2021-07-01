@@ -29,8 +29,20 @@ local path = ... .. '.'
 local wf = {}
 wf.Math = require(path .. 'mlib.mlib')
 
-local World = {}
-World.__index = World
+
+local function wf_class()
+    local c = {}
+    c.__index = c
+    function c.new(...)
+        local instance = setmetatable({}, c)
+        instance:init(...)
+        return instance
+    end
+    return c
+end
+
+
+local World = wf_class()
 
 --- Creates a new World.
 --
@@ -64,9 +76,7 @@ function wf.newWorld(xg, yg, sleep)
     return world
 end
 
-function World.new(xg, yg, sleep)
-    local self = {}
-
+function World:init(xg, yg, sleep)
     self.draw_query_for_n_frames = 10
     self.query_debug_drawing_enabled = false
     self.explicit_collision_events = false
@@ -77,8 +87,6 @@ function World.new(xg, yg, sleep)
 
     love.physics.setMeter(32)
     self.box2d_world = love.physics.newWorld(xg, yg, sleep)
-
-    return setmetatable(self, World)
 end
 
 --- Updates the world to allow bodies to continue their motion and starts a new frame for collision events.
@@ -864,8 +872,7 @@ end
 
 
 
-local Collider = {}
-Collider.__index = Collider
+local Collider = wf_class()
 
 local generator = love.math.newRandomGenerator(os.time())
 local function UUID()
@@ -877,8 +884,7 @@ local function UUID()
     return (("xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"):gsub("[xy]", fn))
 end
 
-function Collider.new(world, collider_type, ...)
-    local self = {}
+function Collider:init(world, collider_type, ...)
     self.id = UUID()
     self.world = world
     self.type = collider_type
@@ -976,8 +982,6 @@ function Collider.new(world, collider_type, ...)
             end
         end
     end
-
-    return setmetatable(self, Collider)
 end
 
 function Collider:collisionEventsClear()
