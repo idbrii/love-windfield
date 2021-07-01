@@ -42,6 +42,47 @@ local function wf_class()
 end
 
 
+-- A readonly version of love's Contact to allow us to cache their contacts but
+-- provide the same API.
+local Contact = wf_class()
+
+function Contact:init(original)
+    self.fixtures    = { original:getFixtures() }
+    self.normal      = { original:getNormal() }
+    self.positions   = { original:getPositions() }
+    self.friction    = original:getFriction()
+    self.restitution = original:getRestitution()
+    self.enabled     = original:isEnabled()
+    self.touching    = original:isTouching()
+end
+
+function Contact:clone()
+    return Contact.new(self)
+end
+
+function Contact:getFixtures()
+    return unpack(self.fixtures)
+end
+function Contact:getNormal()
+    return unpack(self.normal)
+end
+function Contact:getPositions()
+    return unpack(self.positions)
+end
+function Contact:getFriction()
+    return self.friction
+end
+function Contact:getRestitution()
+    return self.restitution
+end
+function Contact:isEnabled()
+    return self.enabled
+end
+function Contact:isTouching()
+    return self.touching
+end
+
+
 local World = wf_class()
 
 --- Creates a new World.
@@ -472,6 +513,11 @@ local function collisionTransition(transition, on_transition, fixture_a, fixture
 
     local target_list = getCollisionReactionList(on_transition, a, b, fixture_a, fixture_b)
     if target_list then
+        -- love doesn't guarantee Contacts survive beyond this callback (they
+        -- may be destroyed in the same frame as creation). Make a copy so
+        -- users can access later in the frame. Prevents "Attempt to use
+        -- destroyed contact."
+        contact = Contact.new(contact)
         for _, collision in ipairs(target_list) do
             if collIf(collision.type1, collision.type2, a, b) then
                 a, b = collEnsure(collision.type1, a, collision.type2, b)
