@@ -7,6 +7,8 @@ function __buildtags
 
 echo 'building'
 __buildtags
+xdg-open ./out/index.html
+
 while inotifywait --quiet --event close_write,moved_to,create --exclude '/\.' --recursive ../windfield/ ./config.ld ; do
     echo
     echo
