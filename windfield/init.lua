@@ -29,7 +29,7 @@ local path = ... .. '.'
 local wf = {}
 wf.Math = require(path .. 'mlib.mlib')
 
-World = {}
+local World = {}
 World.__index = World
 
 --- Creates a new World.
