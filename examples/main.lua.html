@@ -136,64 +136,6 @@
     <span class="keyword">end</span>
 <span class="keyword">end</span>
 
-<span class="keyword">local</span> <span class="keyword">function</span> respond_to_collision_events()
-    example.title = <span class="string">"Respond to Collision Events"</span>
-    <span class="keyword">if</span> <span class="keyword">not</span> example.created_collision_classes[example.title] <span class="keyword">then</span>
-        example.created_collision_classes[example.title] = <span class="keyword">true</span>
-        world:addCollisionClass(<span class="string">'Solid'</span>)
-        world:addCollisionClass(<span class="string">'Geo'</span>)
-        world:addCollisionClass(<span class="string">'Ghost'</span>, {ignores = {<span class="string">'Solid'</span>, <span class="string">'Geo'</span>}})
-    <span class="keyword">end</span>
-    world:setGravity(<span class="number">0</span>, <span class="number">0.5</span>)
-
-    <span class="keyword">local</span> radius = <span class="number">200</span>
-    <span class="keyword">local</span> tau = <span class="global">math</span>.pi * <span class="number">2</span>
-    <span class="keyword">for</span> i=<span class="number">0</span>,<span class="number">0.9</span>,<span class="number">0.05</span> <span class="keyword">do</span>
-        <span class="keyword">local</span> angle = tau * i
-        <span class="keyword">local</span> x = <span class="global">math</span>.cos(angle) * radius
-        <span class="keyword">local</span> y = <span class="global">math</span>.sin(angle) * radius
-        <span class="keyword">local</span> ball = world:newCircleCollider(<span class="number">400</span> + x, <span class="number">300</span> + y, <span class="number">20</span>)
-        ball:setRestitution(<span class="number">0.8</span>)
-        ball:setCollisionClass(<span class="string">'Solid'</span>)
-        <span class="keyword">local</span> impulse = -<span class="number">0.1</span> - i
-        ball:applyLinearImpulse(x * impulse, y * impulse)
-        <span class="global">table</span>.insert(objs, ball)
-    <span class="keyword">end</span>
-
-    <span class="keyword">local</span> ground = world:newRectangleCollider(<span class="number">0</span>, <span class="number">550</span>, <span class="number">800</span>, <span class="number">50</span>)
-    ground:setType(<span class="string">'static'</span>)
-    ground:setCollisionClass(<span class="string">'Geo'</span>)
-    <span class="global">table</span>.insert(objs, ground)
-
-    example.on_update = <span class="keyword">function</span>(args)
-        <span class="keyword">local</span> adds = {}
-        <span class="keyword">for</span> _,ball <span class="keyword">in</span> <span class="global">ipairs</span>(objs) <span class="keyword">do</span>
-            <span class="keyword">if</span> ball:enter(<span class="string">'Solid'</span>) <span class="keyword">then</span>
-                <span class="comment">-- On collision, create some balls that fly off orthogonal to
-</span>                <span class="comment">-- the normal. Not particularly useful, but a simple
-</span>                <span class="comment">-- demonstration of using collision data.
-</span>                <span class="keyword">local</span> collision_data = ball:getEnterCollisionData(<span class="string">'Solid'</span>)
-                <span class="keyword">local</span> px,py = collision_data.contact:getPositions()
-                <span class="keyword">if</span> px <span class="keyword">and</span> py <span class="keyword">then</span>
-                    <span class="keyword">local</span> nx,ny = collision_data.contact:getNormal()
-                    <span class="keyword">local</span> fx,fy = ny,-nx <span class="comment">-- normal rotated 90 degrees
-</span>                    <span class="keyword">local</span> force = <span class="number">100</span>
-                    <span class="keyword">local</span> r = <span class="number">5</span>
-                    <span class="keyword">for</span> i,direction <span class="keyword">in</span> <span class="global">ipairs</span>({<span class="number">1</span>, -<span class="number">1</span>}) <span class="keyword">do</span>
-                        <span class="keyword">local</span> wall = world:newCircleCollider(px + fx * r * direction, py + fy * r * direction, r)
-                        wall:setCollisionClass(<span class="string">'Ghost'</span>)
-                        wall:applyLinearImpulse(fx * direction * force, fy * direction * force)
-                        <span class="global">table</span>.insert(adds, wall)
-                    <span class="keyword">end</span>
-                <span class="keyword">end</span>
-            <span class="keyword">end</span>
-        <span class="keyword">end</span>
-        <span class="keyword">for</span> _,wall <span class="keyword">in</span> <span class="global">ipairs</span>(adds) <span class="keyword">do</span>
-            <span class="global">table</span>.insert(objs, wall)
-        <span class="keyword">end</span>
-    <span class="keyword">end</span>
-<span class="keyword">end</span>
-
 <span class="keyword">local</span> <span class="keyword">function</span> query_the_world()
     create_geo()
 
@@ -274,14 +216,12 @@
     capture_collision_events,
     query_the_world,
     one_way_platforms,
-    <span class="comment">-- More elaborate examples not included in README.
-</span>    respond_to_collision_events,
 }
 
 <span class="comment">-- Loops input value i within range [1, n]. Useful for circular lists.
 </span><span class="keyword">local</span> <span class="keyword">function</span> loop(i, n)
-    <span class="keyword">local</span> z = i - <span class="number">1</span>
-    <span class="keyword">return</span> (z % n) + <span class="number">1</span>
+  <span class="keyword">local</span> z = i - <span class="number">1</span>
+  <span class="keyword">return</span> (z % n) + <span class="number">1</span>
 <span class="keyword">end</span>
 
 <span class="keyword">local</span> <span class="keyword">function</span> noop(...) <span class="keyword">end</span>
@@ -333,7 +273,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2021-07-01 16:55:17 </i>
+<i style="float:right;">Last updated 2021-07-01 16:57:16 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
