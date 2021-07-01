@@ -85,6 +85,65 @@ local function capture_collision_events()
     end
 end
 
+local function respond_to_collision_events()
+    example.title = "Respond to Collision Events"
+    if not example.created_collision_classes[example.title] then
+        example.created_collision_classes[example.title] = true
+        world:addCollisionClass('Ball')
+        world:addCollisionClass('Geo')
+        world:addCollisionClass('IgnoreAll', {ignores = {'Ball', 'Geo'}})
+    end
+    world:setGravity(0, 0.5)
+
+    local radius = 200
+    local tau = math.pi * 2
+    for i=0,0.9,0.05 do
+        local angle = tau * i
+        local x = math.cos(angle) * radius
+        local y = math.sin(angle) * radius
+        local ball = world:newCircleCollider(400 + x, 300 + y, 20)
+        ball:setRestitution(0.8)
+        ball:setCollisionClass('Ball')
+        local impulse = -0.1 - i
+        ball:applyLinearImpulse(x * impulse, y * impulse)
+        table.insert(objs, ball)
+    end
+
+    local ground = world:newRectangleCollider(0, 550, 800, 50)
+    ground:setType('static')
+    ground:setCollisionClass('Geo')
+    table.insert(objs, ground)
+
+    local directions = {1, -1}
+    example.on_update = function(args)
+        local debris = {}
+        for _,ball in ipairs(objs) do
+            if ball:enter('Ball') then
+                -- On collision, create some balls that fly off orthogonal to
+                -- the normal. Not particularly useful, but a simple
+                -- demonstration of using collision data.
+                local collision_data = ball:getEnterCollisionData('Ball')
+                local px,py = collision_data.contact:getPositions()
+                if px and py then
+                    local nx,ny = collision_data.contact:getNormal()
+                    local fx,fy = ny,-nx -- normal rotated 90 degrees
+                    local force = 100
+                    local debris_radius = 5
+                    for i,direction in ipairs(directions) do
+                        local chunk = world:newCircleCollider(px + fx * debris_radius * direction, py + fy * debris_radius * direction, debris_radius)
+                        chunk:setCollisionClass('IgnoreAll')
+                        chunk:applyLinearImpulse(fx * direction * force, fy * direction * force)
+                        table.insert(debris, chunk)
+                    end
+                end
+            end
+        end
+        for _,d in ipairs(debris) do
+            table.insert(objs, d)
+        end
+    end
+end
+
 local function query_the_world()
     create_geo()
 
@@ -165,6 +224,8 @@ local example_list = {
     capture_collision_events,
     query_the_world,
     one_way_platforms,
+    -- More elaborate examples not included in README.
+    respond_to_collision_events,
 }
 
 -- Loops input value i within range [1, n]. Useful for circular lists.
