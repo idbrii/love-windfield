@@ -169,8 +169,8 @@ local example_list = {
 
 -- Loops input value i within range [1, n]. Useful for circular lists.
 local function loop(i, n)
-  local z = i - 1
-  return (z % n) + 1
+    local z = i - 1
+    return (z % n) + 1
 end
 
 local function noop(...) end
