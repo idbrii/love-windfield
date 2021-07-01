@@ -258,6 +258,9 @@ function World:collisionClassesSet()
 end
 
 function World:collisionClear()
+    -- Clear lists of collision reactions. These lists indicate which collision
+    -- classes generate collision events when interacting with other collision
+    -- classes.
     self.collisions = {}
     self.collisions.on_enter = {}
     self.collisions.on_enter.sensor = {}
@@ -281,28 +284,26 @@ function World:collisionEventsClear()
     end
 end
 
-function World:addCollisionEnter(type1, type2)
+function World:_addCollisionReaction(target, type1, type2)
     if not self:isCollisionBetweenSensors(type1, type2) then
-        table.insert(self.collisions.on_enter.non_sensor, {type1 = type1, type2 = type2})
-    else table.insert(self.collisions.on_enter.sensor, {type1 = type1, type2 = type2}) end
+        table.insert(target.non_sensor, {type1 = type1, type2 = type2})
+    else table.insert(target.sensor, {type1 = type1, type2 = type2}) end
+end
+
+function World:addCollisionEnter(type1, type2)
+    self:_addCollisionReaction(self.collisions.on_enter, type1, type2)
 end
 
 function World:addCollisionExit(type1, type2)
-    if not self:isCollisionBetweenSensors(type1, type2) then
-        table.insert(self.collisions.on_exit.non_sensor, {type1 = type1, type2 = type2})
-    else table.insert(self.collisions.on_exit.sensor, {type1 = type1, type2 = type2}) end
+    self:_addCollisionReaction(self.collisions.on_exit, type1, type2)
 end
 
 function World:addCollisionPre(type1, type2)
-    if not self:isCollisionBetweenSensors(type1, type2) then
-        table.insert(self.collisions.pre.non_sensor, {type1 = type1, type2 = type2})
-    else table.insert(self.collisions.pre.sensor, {type1 = type1, type2 = type2}) end
+    self:_addCollisionReaction(self.collisions.pre, type1, type2)
 end
 
 function World:addCollisionPost(type1, type2)
-    if not self:isCollisionBetweenSensors(type1, type2) then
-        table.insert(self.collisions.post.non_sensor, {type1 = type1, type2 = type2})
-    else table.insert(self.collisions.post.sensor, {type1 = type1, type2 = type2}) end
+    self:_addCollisionReaction(self.collisions.post, type1, type2)
 end
 
 function World:doesType1IgnoreType2(type1, type2)
@@ -426,10 +427,11 @@ function World:getCollisionCallbacksTable()
     local collision_table = {}
     for collision_class_name, collision_class in pairs(self.collision_classes) do
         collision_table[collision_class_name] = {}
-        for _, v in ipairs(collision_class.enter or {}) do table.insert(collision_table[collision_class_name], {type = 'enter', other = v}) end
-        for _, v in ipairs(collision_class.exit or {}) do table.insert(collision_table[collision_class_name], {type = 'exit', other = v}) end
-        for _, v in ipairs(collision_class.pre or {}) do table.insert(collision_table[collision_class_name], {type = 'pre', other = v}) end
-        for _, v in ipairs(collision_class.post or {}) do table.insert(collision_table[collision_class_name], {type = 'post', other = v}) end
+        for i,transition in ipairs({'enter', 'exit', 'pre', 'post'}) do
+            for _, v in ipairs(collision_class[transition] or {}) do
+                table.insert(collision_table[collision_class_name], {type = transition, other = v})
+            end
+        end
     end
     return collision_table
 end
@@ -446,62 +448,53 @@ local function collIf(collision_class_name1, collision_class_name2, a, b)
     else return false end
 end
 
-function World.collisionOnEnter(fixture_a, fixture_b, contact)
+
+local function getCollisionReactionList(on_transition, a, b, fixture_a, fixture_b)
+    if not a or not b then
+        return nil
+    elseif fixture_a:isSensor() and fixture_b:isSensor() then
+        return a.world.collisions[on_transition].sensor
+    elseif not (fixture_a:isSensor() or fixture_b:isSensor()) then
+        return a.world.collisions[on_transition].non_sensor
+    end
+end
+
+local function collisionTransition(transition, on_transition, fixture_a, fixture_b, contact)
     local a, b = fixture_a:getUserData(), fixture_b:getUserData()
 
-    if fixture_a:isSensor() and fixture_b:isSensor() then
-        if a and b then
-            for _, collision in ipairs(a.world.collisions.on_enter.sensor) do
-                if collIf(collision.type1, collision.type2, a, b) then
-                    a, b = collEnsure(collision.type1, a, collision.type2, b)
-                    table.insert(a.collision_events[collision.type2], {collision_type = 'enter', collider_1 = a, collider_2 = b, contact = contact})
-                    if collision.type1 == collision.type2 then
-                        table.insert(b.collision_events[collision.type1], {collision_type = 'enter', collider_1 = b, collider_2 = a, contact = contact})
-                    end
-                end
-            end
-        end
-
-    elseif not (fixture_a:isSensor() or fixture_b:isSensor()) then
-        if a and b then
-            for _, collision in ipairs(a.world.collisions.on_enter.non_sensor) do
-                if collIf(collision.type1, collision.type2, a, b) then
-                    a, b = collEnsure(collision.type1, a, collision.type2, b)
-                    table.insert(a.collision_events[collision.type2], {collision_type = 'enter', collider_1 = a, collider_2 = b, contact = contact})
-                    if collision.type1 == collision.type2 then
-                        table.insert(b.collision_events[collision.type1], {collision_type = 'enter', collider_1 = b, collider_2 = a, contact = contact})
-                    end
+    local target_list = getCollisionReactionList(on_transition, a, b, fixture_a, fixture_b)
+    if target_list then
+        for _, collision in ipairs(target_list) do
+            if collIf(collision.type1, collision.type2, a, b) then
+                a, b = collEnsure(collision.type1, a, collision.type2, b)
+                table.insert(a.collision_events[collision.type2], {collision_type = transition, collider_1 = a, collider_2 = b, contact = contact})
+                if collision.type1 == collision.type2 then
+                    table.insert(b.collision_events[collision.type1], {collision_type = transition, collider_1 = b, collider_2 = a, contact = contact})
                 end
             end
         end
     end
 end
 
+function World.collisionOnEnter(fixture_a, fixture_b, contact)
+    collisionTransition('enter', 'on_enter', fixture_a, fixture_b, contact)
+end
+
 function World.collisionOnExit(fixture_a, fixture_b, contact)
+    collisionTransition('exit', 'on_exit', fixture_a, fixture_b, contact)
+end
+
+local function collisionSolve(solver, transition, fixture_a, fixture_b, ...)
     local a, b = fixture_a:getUserData(), fixture_b:getUserData()
 
-    if fixture_a:isSensor() and fixture_b:isSensor() then
-        if a and b then
-            for _, collision in ipairs(a.world.collisions.on_exit.sensor) do
-                if collIf(collision.type1, collision.type2, a, b) then
-                    a, b = collEnsure(collision.type1, a, collision.type2, b)
-                    table.insert(a.collision_events[collision.type2], {collision_type = 'exit', collider_1 = a, collider_2 = b, contact = contact})
-                    if collision.type1 == collision.type2 then
-                        table.insert(b.collision_events[collision.type1], {collision_type = 'exit', collider_1 = b, collider_2 = a, contact = contact})
-                    end
-                end
-            end
-        end
-
-    elseif not (fixture_a:isSensor() or fixture_b:isSensor()) then
-        if a and b then
-            for _, collision in ipairs(a.world.collisions.on_exit.non_sensor) do
-                if collIf(collision.type1, collision.type2, a, b) then
-                    a, b = collEnsure(collision.type1, a, collision.type2, b)
-                    table.insert(a.collision_events[collision.type2], {collision_type = 'exit', collider_1 = a, collider_2 = b, contact = contact})
-                    if collision.type1 == collision.type2 then
-                        table.insert(b.collision_events[collision.type1], {collision_type = 'exit', collider_1 = b, collider_2 = a, contact = contact})
-                    end
+    local target_list = getCollisionReactionList(transition, a, b, fixture_a, fixture_b)
+    if target_list then
+        for _, collision in ipairs(target_list) do
+            if collIf(collision.type1, collision.type2, a, b) then
+                a, b = collEnsure(collision.type1, a, collision.type2, b)
+                a[solver](a, b, ...)
+                if collision.type1 == collision.type2 then
+                    b[solver](b, a, ...)
                 end
             end
         end
@@ -509,65 +502,11 @@ function World.collisionOnExit(fixture_a, fixture_b, contact)
 end
 
 function World.collisionPre(fixture_a, fixture_b, contact)
-    local a, b = fixture_a:getUserData(), fixture_b:getUserData()
-
-    if fixture_a:isSensor() and fixture_b:isSensor() then
-        if a and b then
-            for _, collision in ipairs(a.world.collisions.pre.sensor) do
-                if collIf(collision.type1, collision.type2, a, b) then
-                    a, b = collEnsure(collision.type1, a, collision.type2, b)
-                    a:preSolve(b, contact)
-                    if collision.type1 == collision.type2 then
-                        b:preSolve(a, contact)
-                    end
-                end
-            end
-        end
-
-    elseif not (fixture_a:isSensor() or fixture_b:isSensor()) then
-        if a and b then
-            for _, collision in ipairs(a.world.collisions.pre.non_sensor) do
-                if collIf(collision.type1, collision.type2, a, b) then
-                    a, b = collEnsure(collision.type1, a, collision.type2, b)
-                    a:preSolve(b, contact)
-                    if collision.type1 == collision.type2 then
-                        b:preSolve(a, contact)
-                    end
-                end
-            end
-        end
-    end
+    collisionSolve('preSolve', 'pre', fixture_a, fixture_b, contact)
 end
 
 function World.collisionPost(fixture_a, fixture_b, contact, ni1, ti1, ni2, ti2)
-    local a, b = fixture_a:getUserData(), fixture_b:getUserData()
-
-    if fixture_a:isSensor() and fixture_b:isSensor() then
-        if a and b then
-            for _, collision in ipairs(a.world.collisions.post.sensor) do
-                if collIf(collision.type1, collision.type2, a, b) then
-                    a, b = collEnsure(collision.type1, a, collision.type2, b)
-                    a:postSolve(b, contact, ni1, ti1, ni2, ti2)
-                    if collision.type1 == collision.type2 then
-                        b:postSolve(a, contact, ni1, ti1, ni2, ti2)
-                    end
-                end
-            end
-        end
-
-    elseif not (fixture_a:isSensor() or fixture_b:isSensor()) then
-        if a and b then
-            for _, collision in ipairs(a.world.collisions.post.non_sensor) do
-                if collIf(collision.type1, collision.type2, a, b) then
-                    a, b = collEnsure(collision.type1, a, collision.type2, b)
-                    a:postSolve(b, contact, ni1, ti1, ni2, ti2)
-                    if collision.type1 == collision.type2 then
-                        b:postSolve(a, contact, ni1, ti1, ni2, ti2)
-                    end
-                end
-            end
-        end
-    end
+    collisionSolve('postSolve', 'post', fixture_a, fixture_b, contact, ni1, ti1, ni2, ti2)
 end
 
 --- Creates a new CircleCollider.
