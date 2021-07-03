@@ -201,7 +201,9 @@ function World:draw(alpha)
             elseif fixture:getShape():type() == 'EdgeShape' or fixture:getShape():type() == 'ChainShape' then
                 local points = {body:getWorldPoints(fixture:getShape():getPoints())}
                 for i = 1, #points, 2 do
-                    if i < #points-2 then love.graphics.line(points[i], points[i+1], points[i+2], points[i+3]) end
+                    if i < #points-2 then
+                        love.graphics.line(points[i], points[i+1], points[i+2], points[i+3])
+                    end
                 end
             elseif fixture:getShape():type() == 'CircleShape' then
                 local body_x, body_y = body:getPosition()
@@ -355,9 +357,9 @@ function World:collisionClassesSet()
     for collision_class_name, collision_list in pairs(collision_table) do
         for _, collision_info in ipairs(collision_list) do
             if collision_info.type == 'enter' then self:addCollisionEnter(collision_class_name, collision_info.other) end
-            if collision_info.type == 'exit' then self:addCollisionExit(collision_class_name, collision_info.other) end
-            if collision_info.type == 'pre' then self:addCollisionPre(collision_class_name, collision_info.other) end
-            if collision_info.type == 'post' then self:addCollisionPost(collision_class_name, collision_info.other) end
+            if collision_info.type == 'exit'  then self:addCollisionExit(collision_class_name,  collision_info.other) end
+            if collision_info.type == 'pre'   then self:addCollisionPre(collision_class_name,   collision_info.other) end
+            if collision_info.type == 'post'  then self:addCollisionPost(collision_class_name,  collision_info.other) end
         end
     end
 
@@ -434,19 +436,28 @@ function World:doesType1IgnoreType2(type1, type2)
         if key == 'except' then
             for _, except_type in ipairs(collision_ignores[type1].except) do
                 for i = #ignored_types, 1, -1 do
-                    if ignored_types[i] == except_type then table.remove(ignored_types, i) end
+                    if ignored_types[i] == except_type then
+                        table.remove(ignored_types, i)
+                    end
                 end
             end
         end
     end
     for _, ignored_type in ipairs(ignored_types) do
-        if ignored_type == type2 then return true end
+        if ignored_type == type2 then
+            return true
+        end
     end
 end
 
 function World:isCollisionBetweenSensors(type1, type2)
-    if not self.is_sensor_memo[type1] then self.is_sensor_memo[type1] = {} end
-    if not self.is_sensor_memo[type1][type2] then self.is_sensor_memo[type1][type2] = (self:doesType1IgnoreType2(type1, type2) or self:doesType1IgnoreType2(type2, type1)) end
+    if not self.is_sensor_memo[type1] then
+        self.is_sensor_memo[type1] = {}
+    end
+    -- TODO: Should check against null instead of falsey?
+    if not self.is_sensor_memo[type1][type2] then
+        self.is_sensor_memo[type1][type2] = (self:doesType1IgnoreType2(type1, type2) or self:doesType1IgnoreType2(type2, type1))
+    end
     return self.is_sensor_memo[type1][type2]
 end
 
@@ -507,7 +518,9 @@ function World:generateCategoriesMasks()
         for _, c in ipairs(v) do
             str = str .. c
         end
-        if not edge_groups[str] then i = i + 1; edge_groups[str] = {n = i} end
+        if not edge_groups[str] then
+            i = i + 1; edge_groups[str] = {n = i}
+        end
         table.insert(edge_groups[str], k)
     end
     local categories = {}
@@ -543,8 +556,11 @@ function World:getCollisionCallbacksTable()
 end
 
 local function collEnsure(collision_class_name1, a, collision_class_name2, b)
-    if a.collision_class == collision_class_name2 and b.collision_class == collision_class_name1 then return b, a
-    else return a, b end
+    if a.collision_class == collision_class_name2 and b.collision_class == collision_class_name1 then
+        return b, a
+    else
+        return a, b
+    end
 end
 
 local function collIf(collision_class_name1, collision_class_name2, a, b)
@@ -734,7 +750,9 @@ end
 function World:_queryBoundingBox(x1, y1, x2, y2)
     local colliders = {}
     local callback = function(fixture)
-        if not fixture:isSensor() then table.insert(colliders, fixture:getUserData()) end
+        if not fixture:isSensor() then
+            table.insert(colliders, fixture:getUserData())
+        end
         return true
     end
     self.box2d_world:queryBoundingBox(x1, y1, x2, y2, callback)
@@ -867,7 +885,9 @@ function World:queryPolygonArea(vertices, collision_class_names)
     local d_max = 0
     for i = 1, #vertices, 2 do
         local d = wf.Math.line.getLength(cx, cy, vertices[i], vertices[i+1])
-        if d > d_max then d_max = d end
+        if d > d_max then
+            d_max = d
+        end
     end
     local colliders = self:_queryBoundingBox(cx-d_max, cy-d_max, cx+d_max, cy+d_max)
     local outs = {}
@@ -1144,7 +1164,9 @@ function Collider:enter(other_collision_class_name)
     if events and #events >= 1  then
         for _, e in ipairs(events) do
             if e.collision_type == 'enter' then
-                if not self.collision_stay[other_collision_class_name] then self.collision_stay[other_collision_class_name] = {} end
+                if not self.collision_stay[other_collision_class_name] then
+                    self.collision_stay[other_collision_class_name] = {}
+                end
                 table.insert(self.collision_stay[other_collision_class_name], {collider = e.collider_2, contact = e.contact})
                 self.enter_collision_data[other_collision_class_name] = {collider = e.collider_2, contact = e.contact}
                 return true
@@ -1194,7 +1216,9 @@ function Collider:exit(other_collision_class_name)
                 if self.collision_stay[other_collision_class_name] then
                     for i = #self.collision_stay[other_collision_class_name], 1, -1 do
                         local collision_stay = self.collision_stay[other_collision_class_name][i]
-                        if collision_stay.collider.id == e.collider_2.id then table.remove(self.collision_stay[other_collision_class_name], i) end
+                        if collision_stay.collider.id == e.collider_2.id then
+                            table.remove(self.collision_stay[other_collision_class_name], i)
+                        end
                     end
                 end
                 self.exit_collision_data[other_collision_class_name] = {collider = e.collider_2, contact = e.contact}
@@ -1369,7 +1393,9 @@ end
 -- string: shape_name The unique name of the shape to be removed. Must be a name previously added with `:addShape`
 --
 function Collider:removeShape(shape_name)
-    if not self.shapes[shape_name] then return end
+    if not self.shapes[shape_name] then
+        return
+    end
     self.shapes[shape_name] = nil
     self.fixtures[shape_name]:setUserData(nil)
     self.fixtures[shape_name]:destroy()
