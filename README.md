@@ -116,8 +116,10 @@ Collision classes are used to make colliders ignore other colliders of certain c
 function love.load()
     ...
 
-    world:addCollisionClass('Solid')
-    world:addCollisionClass('Ghost', {ignores = {'Solid'}})
+    world:addCollisionClassTable({
+            Solid = {},
+            Ghost = {ignores = {'Solid'}},
+        })
 
     box_1 = world:newRectangleCollider(400 - 100, 0, 50, 50)
     box_1:setRestitution(0.8)
@@ -262,8 +264,10 @@ A common problem people have with using 2D physics engines seems to be getting o
 ```lua
 function love.load()
   world = wf.newWorld(0, 512, true)
-  world:addCollisionClass('Platform')
-  world:addCollisionClass('Player')
+  world:addCollisionClassTable({
+          Platform = {},
+          Player = {},
+      })
 
   ground = world:newRectangleCollider(100, 500, 600, 50)
   ground:setType('static')

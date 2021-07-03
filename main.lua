@@ -54,8 +54,10 @@ local function create_collision_classes()
     example.title = "Create Collision Classes"
     if not example.created_collision_classes[example.title] then
         example.created_collision_classes[example.title] = true
-        world:addCollisionClass('Solid')
-        world:addCollisionClass('Ghost', {ignores = {'Solid'}})
+        world:addCollisionClassTable({
+                Solid = {},
+                Ghost = {ignores = {'Solid'}},
+            })
     end
 
     local box_1 = world:newRectangleCollider(400 - 100, 0, 50, 50)
@@ -89,9 +91,11 @@ local function respond_to_collision_events()
     example.title = "Respond to Collision Events"
     if not example.created_collision_classes[example.title] then
         example.created_collision_classes[example.title] = true
-        world:addCollisionClass('Ball')
-        world:addCollisionClass('Geo')
-        world:addCollisionClass('IgnoreAll', {ignores = {'Ball', 'Geo', 'IgnoreAll'}})
+        world:addCollisionClassTable({
+                Ball = {},
+                Geo = {},
+                IgnoreAll = {ignores = {'Ball', 'Geo', 'IgnoreAll'}},
+            })
     end
     world:setGravity(0, 0.5)
 
@@ -184,8 +188,10 @@ local function one_way_platforms()
     example.title = "One Way Platforms - press space"
     if not example.created_collision_classes[example.title] then
         example.created_collision_classes[example.title] = true
-        world:addCollisionClass('Platform')
-        world:addCollisionClass('Player')
+        world:addCollisionClassTable({
+                Platform = {},
+                Player = {},
+            })
     end
 
     local ground = world:newRectangleCollider(100, 500, 600, 50)
