@@ -29,6 +29,8 @@ local path = ... .. '.'
 local wf = {}
 wf.Math = require(path .. 'mlib.mlib')
 
+local all_collision_classes = {'All'}
+
 
 local function wf_class()
     local c = {}
@@ -779,7 +781,7 @@ end
 --     colliders_1 = world:queryCircleArea(100, 100, 50, {'Enemy', 'NPC'})
 --     colliders_2 = world:queryCircleArea(100, 100, 50, {'All', except = {'Player'}})
 function World:queryCircleArea(x, y, radius, collision_class_names)
-    if not collision_class_names then collision_class_names = {'All'} end
+    if not collision_class_names then collision_class_names = all_collision_classes end
     if self.query_debug_drawing_enabled then table.insert(self.query_debug_draw, {type = 'circle', x = x, y = y, r = radius, frames = self.draw_query_for_n_frames}) end
 
     local colliders = self:_queryBoundingBox(x-radius, y-radius, x+radius, y+radius)
@@ -821,7 +823,7 @@ end
 --     colliders_1 = world:queryRectangleArea(100, 100, 50, 50, {'Enemy', 'NPC'})
 --     colliders_2 = world:queryRectangleArea(100, 100, 50, 50, {'All', except = {'Player'}})
 function World:queryRectangleArea(x, y, w, h, collision_class_names)
-    if not collision_class_names then collision_class_names = {'All'} end
+    if not collision_class_names then collision_class_names = all_collision_classes end
     if self.query_debug_drawing_enabled then table.insert(self.query_debug_draw, {type = 'rectangle', x = x, y = y, w = w, h = h, frames = self.draw_query_for_n_frames}) end
 
     local colliders = self:_queryBoundingBox(x, y, x+w, y+h)
@@ -861,7 +863,7 @@ end
 --     colliders_1 = world:queryPolygonArea({10, 10, 20, 10, 20, 20, 10, 20}, {'Enemy'})
 --     colliders_2 = world:queryPolygonArea({10, 10, 20, 10, 20, 20, 10, 20}, {'All', except = {'Player'}})
 function World:queryPolygonArea(vertices, collision_class_names)
-    if not collision_class_names then collision_class_names = {'All'} end
+    if not collision_class_names then collision_class_names = all_collision_classes end
     if self.query_debug_drawing_enabled then table.insert(self.query_debug_draw, {type = 'polygon', vertices = vertices, frames = self.draw_query_for_n_frames}) end
 
     local cx, cy = wf.Math.polygon.getCentroid(vertices)
@@ -911,7 +913,7 @@ end
 --     colliders_1 = world:queryLine(100, 100, 200, 200, {'Enemy', 'NPC', 'Projectile'})
 --     colliders_2 = world:queryLine(100, 100, 200, 200, {'All', except = {'Player'}})
 function World:queryLine(x1, y1, x2, y2, collision_class_names)
-    if not collision_class_names then collision_class_names = {'All'} end
+    if not collision_class_names then collision_class_names = all_collision_classes end
     if self.query_debug_drawing_enabled then
         table.insert(self.query_debug_draw, {type = 'line', x1 = x1, y1 = y1, x2 = x2, y2 = y2, frames = self.draw_query_for_n_frames})
     end
