@@ -1122,7 +1122,8 @@ function Collider:enter(other_collision_class_name)
     end
 end
 
---- Gets the collision data generated from the last collision enter event
+--- Gets the collision data generated from the last collision enter event.
+-- Only valid after calling Collider:enter.
 --
 -- getEnterCollisionData(string) -> {Collider, Contact}
 --
@@ -1172,7 +1173,8 @@ function Collider:exit(other_collision_class_name)
     end
 end
 
---- Gets the collision data generated from the last collision exit event
+--- Gets the collision data generated from the last collision exit event.
+-- Only valid after calling Collider:exit.
 --
 -- getExitCollisionData(string) -> {Collider, Contact}
 --
@@ -1183,7 +1185,7 @@ end
 -- usage:
 --     -- in some update function
 --     if collider:exit('Enemy') then
---         local collision_data = collider:getEnterCollisionData('Enemy')
+--         local collision_data = collider:getExitCollisionData('Enemy')
 --         print(collision_data.collider, collision_data.contact)
 --     end
 function Collider:getExitCollisionData(other_collision_class_name)
@@ -1213,6 +1215,7 @@ function Collider:stay(other_collision_class_name)
 end
 
 --- Gets the collision data generated from the last collision stay event
+-- Only valid after calling Collider:stay.
 --
 -- getStayCollisionData(string) -> {{Collider, Contact}}
 --
@@ -1235,6 +1238,10 @@ end
 --- Sets the preSolve callback.
 -- Unlike `:enter` or `:exit`, which can be delayed and checked after the physics simulation is done for this frame, both preSolve and postSolve must be callbacks that are resolved immediately, since they may change how the rest of the simulation plays out on this frame.
 --
+-- You cannot modify the World inside of the preSolve callback because the
+-- underlying Box2D world will be locked. See also
+-- [World:setCallbacks](https://love2d.org/wiki/World:setCallbacks).
+--
 -- setPreSolve(function) -> nil
 --
 -- function: callback The preSolve callback. Receives `collider_1`, `collider_2`, and `contact` as arguments
@@ -1249,6 +1256,10 @@ end
 
 --- Sets the postSolve callback.
 -- Unlike `:enter` or `:exit`, which can be delayed and checked after the physics simulation is done for this frame, both preSolve and postSolve must be callbacks that are resolved immediately, since they may change how the rest of the simulation plays out on this frame.
+--
+-- You cannot modify the World inside of the postSolve callback because the
+-- underlying Box2D world will be locked. See also
+-- [World:setCallbacks](https://love2d.org/wiki/World:setCallbacks).
 --
 -- setPostSolve(function) -> nil
 --
