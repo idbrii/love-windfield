@@ -447,8 +447,7 @@ end
 function World:isCollisionBetweenSensors(type1, type2)
     if not self.is_sensor_memo[type1] then self.is_sensor_memo[type1] = {} end
     if not self.is_sensor_memo[type1][type2] then self.is_sensor_memo[type1][type2] = (self:doesType1IgnoreType2(type1, type2) or self:doesType1IgnoreType2(type2, type1)) end
-    if self.is_sensor_memo[type1][type2] then return true
-    else return false end
+    return self.is_sensor_memo[type1][type2]
 end
 
 -- https://love2d.org/forums/viewtopic.php?f=4&t=75441
@@ -549,10 +548,8 @@ local function collEnsure(collision_class_name1, a, collision_class_name2, b)
 end
 
 local function collIf(collision_class_name1, collision_class_name2, a, b)
-    if (a.collision_class == collision_class_name1 and b.collision_class == collision_class_name2) or
-       (a.collision_class == collision_class_name2 and b.collision_class == collision_class_name1) then
-       return true
-    else return false end
+    return ((a.collision_class == collision_class_name1 and b.collision_class == collision_class_name2) or
+        (a.collision_class == collision_class_name2 and b.collision_class == collision_class_name1))
 end
 
 
@@ -1242,9 +1239,7 @@ end
 --     end
 function Collider:stay(other_collision_class_name)
     if self.collision_stay[other_collision_class_name] then
-        if #self.collision_stay[other_collision_class_name] >= 1 then
-            return true
-        end
+        return #self.collision_stay[other_collision_class_name] >= 1
     end
 end
 
