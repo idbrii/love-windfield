@@ -41,15 +41,32 @@ local function wf_class()
     return c
 end
 
+local function replace_list_with(dst, ...)
+    for i,val in ipairs(dst) do
+        dst[i] = nil
+    end
+    for i=1,select('#', ...) do
+        local val = select(i, ...)
+        table.insert(dst, val)
+    end
+end
+
 
 -- A readonly version of love's Contact to allow us to cache their contacts but
 -- provide the same API.
 local Contact = wf_class()
 
 function Contact:init(original)
-    self.fixtures    = { original:getFixtures() }
-    self.normal      = { original:getNormal() }
-    self.positions   = { original:getPositions() }
+    self.fixtures  = {}
+    self.normal    = {}
+    self.positions = {}
+    self:assign(original)
+end
+
+function Contact:assign(original)
+    replace_list_with(self.fixtures,  original:getFixtures())
+    replace_list_with(self.normal,    original:getNormal())
+    replace_list_with(self.positions, original:getPositions())
     self.friction    = original:getFriction()
     self.restitution = original:getRestitution()
     self.enabled     = original:isEnabled()
@@ -125,6 +142,8 @@ function World:init(xg, yg, sleep)
     self.masks = {}
     self.is_sensor_memo = {}
     self.query_debug_draw = {}
+    self.contact_pool = {}
+    self.next_contact = 1
 
     love.physics.setMeter(32)
     self.box2d_world = love.physics.newWorld(xg, yg, sleep)
@@ -139,6 +158,7 @@ end
 -- usage:
 --     world:update(dt)
 function World:update(dt)
+    self.next_contact = 1 -- release all
     self:collisionEventsClear()
     self.box2d_world:update(dt)
 end
@@ -517,7 +537,7 @@ local function collisionTransition(transition, on_transition, fixture_a, fixture
         -- may be destroyed in the same frame as creation). Make a copy so
         -- users can access later in the frame. Prevents "Attempt to use
         -- destroyed contact."
-        contact = Contact.new(contact)
+        contact = a.world:_acquireContact(contact)
         for _, collision in ipairs(target_list) do
             if collIf(collision.type1, collision.type2, a, b) then
                 a, b = collEnsure(collision.type1, a, collision.type2, b)
@@ -528,6 +548,21 @@ local function collisionTransition(transition, on_transition, fixture_a, fixture
             end
         end
     end
+end
+
+function World:_acquireContact(contact)
+    -- Pool contacts since we create them on every collision even if the user
+    -- isn't querying them.
+    local copy = self.contact_pool[self.next_contact]
+    if copy then
+        copy:assign(contact)
+        self.next_contact = self.next_contact + 1
+    else
+        self.next_contact = nil
+        copy = Contact.new(contact)
+        table.insert(self.contact_pool, copy)
+    end
+    return copy
 end
 
 function World.collisionOnEnter(fixture_a, fixture_b, contact)
@@ -1093,7 +1128,7 @@ end
 --
 -- string: other_collision_class_name The name of the target collision class
 --
--- return: {Collider, Contact}: collision_data A table containing the Collider and the [Contact](https://love2d.org/wiki/Contact) generated from the last enter collision event
+-- return: {Collider, Contact}: collision_data A table containing the Collider and the [Contact](https://love2d.org/wiki/Contact) generated from the last enter collision event. The Contact is read-only (only get* and is* methods exist) and will become invalid on the next call to World:update, but you can use contact:clone() to create a permanent copy.
 --
 -- usage:
 --     -- in some update function
@@ -1143,7 +1178,7 @@ end
 --
 -- string: other_collision_class_name The name of the target collision class
 --
--- return: {Collider, Contact}: collision_data A table containing the Collider and the [Contact](https://love2d.org/wiki/Contact) generated from the last exit collision event
+-- return: {Collider, Contact}: collision_data A table containing the Collider and the [Contact](https://love2d.org/wiki/Contact) generated from the last exit collision event. The Contact is read-only (only get* and is* methods exist) and will become invalid on the next call to World:update, but you can use contact:clone() to create a permanent copy.
 --
 -- usage:
 --     -- in some update function
@@ -1183,7 +1218,7 @@ end
 --
 -- string: other_collision_class_name The name of the target collision class
 --
--- return: {{Collider, Contact}}: collision_data_list A table containing multiple Colliders and [Contacts](https://love2d.org/wiki/Contact) generated from the last stay collision event. Usually this list will be of size 1, but sometimes this collider will be staying in contact with multiple other colliders on the same frame, and so those multiple stay events (with multiple colliders) are returned.
+-- return: {{Collider, Contact}}: collision_data_list A table containing multiple Colliders and [Contacts](https://love2d.org/wiki/Contact) generated from the last stay collision event. Usually this list will be of size 1, but sometimes this collider will be staying in contact with multiple other colliders on the same frame, and so those multiple stay events (with multiple colliders) are returned. The Contact is read-only (only get* and is* methods exist) and will become invalid on the next call to World:update, but you can use contact:clone() to create a permanent copy.
 --
 -- usage:
 --     -- in some update function

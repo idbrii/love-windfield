@@ -91,7 +91,7 @@ local function respond_to_collision_events()
         example.created_collision_classes[example.title] = true
         world:addCollisionClass('Ball')
         world:addCollisionClass('Geo')
-        world:addCollisionClass('IgnoreAll', {ignores = {'Ball', 'Geo'}})
+        world:addCollisionClass('IgnoreAll', {ignores = {'Ball', 'Geo', 'IgnoreAll'}})
     end
     world:setGravity(0, 0.5)
 
@@ -115,7 +115,7 @@ local function respond_to_collision_events()
     table.insert(objs, ground)
 
     local directions = {1, -1}
-    example.on_update = function(args)
+    example.on_update = function(dt)
         local debris = {}
         for _,ball in ipairs(objs) do
             if ball:enter('Ball') then
@@ -276,4 +276,38 @@ function love.keypressed(key)
         love.event.quit()
     end
     example.on_keypressed(key)
+end
+
+
+
+-- Measure the amount of garbage created by windfield. Shows two values:
+-- * Garbage per Frame: KB of garbage created this frame
+-- * Garbage Watermark: highest seen KB of garbage generated per frame
+local measure_gc = false
+if measure_gc then
+    local function measure_garbage(fn, ...)
+        collectgarbage('collect')
+        local tare = collectgarbage('count')
+        collectgarbage('stop') -- prevent gc during measurement
+        fn(...)
+        local count = collectgarbage('count') - tare
+        collectgarbage('restart')
+        return count
+    end
+
+    function love.update(dt)
+        world.gc_count = measure_garbage(world.update, world, dt)
+        world.gc_max = math.max(world.gc_count, world.gc_max or 0)
+        if love.keyboard.isDown("g") then
+            world.gc_max = 0
+        end
+        example.on_update()
+    end
+    local normal_draw = love.draw
+    function love.draw()
+        normal_draw()
+        love.graphics.print(("Garbage per Frame: %.3f KB"):format(world.gc_count), 10, 100)
+        love.graphics.print(("Garbage Watermark: %.3f KB"):format(world.gc_max), 10, 115)
+        love.graphics.print("Press g to reset the gc max", 10, 130)
+    end
 end
