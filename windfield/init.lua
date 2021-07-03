@@ -270,7 +270,7 @@ end
 --
 -- string: collision_class_name The unique name of the collision class
 --
--- {{string}}: collision_class The collision class definition. Mostly specifying collision class names that should generate collision events with the collider of this collision class at different points in time.
+-- {[string]={}}: collision_class The collision class definition. Mostly specifying collision class names that should generate collision events with the collider of this collision class at different points in time.
 --     collision_class = {
 --          ignores = {}, -- physically ignore
 --          enter = {}, -- collision events when they *enter* contact with each other
@@ -279,9 +279,38 @@ end
 --          post = {}, -- collision events *right after* collision response is applied
 --     }
 --
--- usage
+-- usage:
 --     world:addCollisionClass('Player', {ignores = {'NPC', 'Enemy'}})
 function World:addCollisionClass(collision_class_name, collision_class)
+    self:_addCollisionClassWithoutRebuild(collision_class_name, collision_class)
+    self:collisionClassesSet()
+end
+
+--- Adds multiple new collision classes to the World.
+--
+-- Allows you to add multiple collision classes that ignore each other without
+-- worrying about specifying them in a specific order.
+--
+-- @see `World:addCollisionClass`
+--
+-- addCollisionClassTable(table) -> nil
+--
+-- {[string]={[string]={}}}: definition_map A map of collision class names to their definitions. Definitions are the same as collision_class in `World:addCollisionClass`.
+--
+-- usage:
+--     world:addCollisionClassTable({
+--         Player = {ignores = {'NPC', 'Enemy'}},
+--         NPC = {},
+--         Enemy = {ignores = {'NPC'}},
+--     })
+function World:addCollisionClassTable(definition_map)
+    for collision_class_name, collision_class in pairs(definition_map) do
+        self:_addCollisionClassWithoutRebuild(collision_class_name, collision_class)
+    end
+    self:collisionClassesSet()
+end
+
+function World:_addCollisionClassWithoutRebuild(collision_class_name, collision_class)
     if self.collision_classes[collision_class_name] then error('Collision class ' .. collision_class_name .. ' already exists.') end
 
     if self.explicit_collision_events then
@@ -305,8 +334,6 @@ function World:addCollisionClass(collision_class_name, collision_class)
             table.insert(self.collision_classes[c_class_name].post, collision_class_name)
         end
     end
-
-    self:collisionClassesSet()
 end
 
 function World:collisionClassesSet()

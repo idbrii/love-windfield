@@ -25,6 +25,9 @@ colon=true
 tparam_alias('boolean','bool')
 -- ldoc uses 'func' instead of lua's 'function'
 tparam_alias('function','func')
+-- ldoc uses 'tab' instead of lua's 'table'
+tparam_alias('table','tab')
+tparam_alias('{}','tab')
 -- ldoc doesn't seem to define an "unknown" type
 tparam_alias('any')
 
@@ -65,10 +68,25 @@ local basic_types = {
 }
 for i=1,#basic_types do -- no ipairs in config files
     local kind = basic_types[i]
-    -- In tables
+    -- Map tables
+    for j=1,#basic_types do
+        -- ldoc implies it would work with {[string]=Bonzo,...}, but it
+        -- doesn't. Create aliases for an abbreviated version of that.
+        local key_kind = ('{[%s]=%s}'):format(kind, basic_types[j])
+        local table_kind = ('{[%s]={[%s]={}}}'):format(kind, basic_types[j])
+        -- Value in some table keyed by strings
+        tparam_alias(table_kind)
+        -- Key to some kind of table.
+        tparam_alias(key_kind)
+        tparam_alias(('{[%s]=%s}'):format(kind, key_kind))
+        tparam_alias(('{[string]=%s}'):format(key_kind))
+        tparam_alias(('{[string]={string=%s}}'):format(table_kind))
+    end
+    tparam_alias(('{[%s]={}}'):format(kind))
+    -- List tables
     kind = ('{%s}'):format(kind)
     tparam_alias(kind)
-    -- Nested tables
+    -- Nested lists
     kind = ('{%s}'):format(kind)
     tparam_alias(kind)
 end
