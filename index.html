@@ -84,6 +84,10 @@
 	<td class="summary">Adds a new collision class to the World.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#World:addCollisionClassTable">World:addCollisionClassTable (definition_map)</a></td>
+	<td class="summary">Adds multiple new collision classes to the World.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#World:newCircleCollider">World:newCircleCollider (x, y, r)</a></td>
 	<td class="summary">Creates a new CircleCollider.</td>
 	</tr>
@@ -145,9 +149,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Collider:getEnterCollisionData">Collider:getEnterCollisionData (other_collision_class_name)</a></td>
-	<td class="summary">Gets the collision data generated from the last collision enter event</p>
-
-<p> getEnterCollisionData(string) -> {Collider, Contact}</td>
+	<td class="summary">Gets the collision data generated from the last collision enter event.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Collider:exit">Collider:exit (other_collision_class_name)</a></td>
@@ -155,9 +157,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Collider:getExitCollisionData">Collider:getExitCollisionData (other_collision_class_name)</a></td>
-	<td class="summary">Gets the collision data generated from the last collision exit event</p>
-
-<p> getExitCollisionData(string) -> {Collider, Contact}</td>
+	<td class="summary">Gets the collision data generated from the last collision exit event.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Collider:stay">Collider:stay (other_collision_class_name)</a></td>
@@ -165,9 +165,8 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Collider:getStayCollisionData">Collider:getStayCollisionData (other_collision_class_name)</a></td>
-	<td class="summary">Gets the collision data generated from the last collision stay event</p>
-
-<p> getStayCollisionData(string) -> {{Collider, Contact}}</td>
+	<td class="summary">Gets the collision data generated from the last collision stay event
+ Only valid after calling Collider:stay.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Collider:setPreSolve">Collider:setPreSolve (callback)</a></td>
@@ -375,7 +374,7 @@
          The unique name of the collision class
         </li>
         <li><span class="parameter">collision_class</span>
-            <span class="types"><span class="type">{{string}}</span></span>
+            <span class="types"><span class="type">{[string]={}}</span></span>
 
 <p> The collision class definition. Mostly specifying collision class names that should generate collision events with the collider of this collision class at different points in time.</p>
 <pre><code> collision_class = {
@@ -387,9 +386,6 @@
  }
 </code></pre>
 
-<p> usage</p>
-<pre><code> world:addCollisionClass('Player', {ignores = {'NPC', 'Enemy'}})
-</code></pre>
 
 
         </li>
@@ -398,6 +394,47 @@
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">world:addCollisionClass(<span class="string">'Player'</span>, {ignores = {<span class="string">'NPC'</span>, <span class="string">'Enemy'</span>}})</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "World:addCollisionClassTable"></a>
+    <strong>World:addCollisionClassTable (definition_map)</strong>
+    </dt>
+    <dd>
+    Adds multiple new collision classes to the World. </p>
+
+<p> Allows you to add multiple collision classes that ignore each other without
+ worrying about specifying them in a specific order.</p>
+
+<p> @see <a href="index.html#World:addCollisionClass">World:addCollisionClass</a></p>
+
+<p> addCollisionClassTable(table) -> nil
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">definition_map</span>
+            <span class="types"><span class="type">{[string]={[string]={}}}</span></span>
+         A map of collision class names to their definitions. Definitions are the same as collision_class in <a href="index.html#World:addCollisionClass">World:addCollisionClass</a>.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">world:addCollisionClassTable({
+    Player = {ignores = {<span class="string">'NPC'</span>, <span class="string">'Enemy'</span>}},
+    NPC = {},
+    Enemy = {ignores = {<span class="string">'NPC'</span>}},
+})
+</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -987,7 +1024,8 @@ collider:setCollisionClass(<span class="string">'Player'</span>)
     <strong>Collider:getEnterCollisionData (other_collision_class_name)</strong>
     </dt>
     <dd>
-    Gets the collision data generated from the last collision enter event</p>
+    Gets the collision data generated from the last collision enter event.
+ Only valid after calling Collider:enter.</p>
 
 <p> getEnterCollisionData(string) -> {Collider, Contact}
 
@@ -1003,7 +1041,7 @@ collider:setCollisionClass(<span class="string">'Player'</span>)
     <h3>Returns:</h3>
     <ol>
 
-        {Collider, Contact}: collision_data A table containing the Collider and the <a href="https://love2d.org/wiki/Contact">Contact</a> generated from the last enter collision event
+        {Collider, Contact}: collision_data A table containing the Collider and the <a href="https://love2d.org/wiki/Contact">Contact</a> generated from the last enter collision event. The Contact is read-only (only get* and is* methods exist) and will become invalid on the next call to World:update, but you can use contact:clone() to create a permanent copy.
     </ol>
 
 
@@ -1061,7 +1099,8 @@ collider:setCollisionClass(<span class="string">'Player'</span>)
     <strong>Collider:getExitCollisionData (other_collision_class_name)</strong>
     </dt>
     <dd>
-    Gets the collision data generated from the last collision exit event</p>
+    Gets the collision data generated from the last collision exit event.
+ Only valid after calling Collider:exit.</p>
 
 <p> getExitCollisionData(string) -> {Collider, Contact}
 
@@ -1077,7 +1116,7 @@ collider:setCollisionClass(<span class="string">'Player'</span>)
     <h3>Returns:</h3>
     <ol>
 
-        {Collider, Contact}: collision_data A table containing the Collider and the <a href="https://love2d.org/wiki/Contact">Contact</a> generated from the last exit collision event
+        {Collider, Contact}: collision_data A table containing the Collider and the <a href="https://love2d.org/wiki/Contact">Contact</a> generated from the last exit collision event. The Contact is read-only (only get* and is* methods exist) and will become invalid on the next call to World:update, but you can use contact:clone() to create a permanent copy.
     </ol>
 
 
@@ -1086,7 +1125,7 @@ collider:setCollisionClass(<span class="string">'Player'</span>)
     <ul>
         <pre class="example"><span class="comment">-- in some update function
 </span><span class="keyword">if</span> collider:exit(<span class="string">'Enemy'</span>) <span class="keyword">then</span>
-    <span class="keyword">local</span> collision_data = collider:getEnterCollisionData(<span class="string">'Enemy'</span>)
+    <span class="keyword">local</span> collision_data = collider:getExitCollisionData(<span class="string">'Enemy'</span>)
     <span class="global">print</span>(collision_data.collider, collision_data.contact)
 <span class="keyword">end</span>
 </pre>
@@ -1135,7 +1174,8 @@ collider:setCollisionClass(<span class="string">'Player'</span>)
     <strong>Collider:getStayCollisionData (other_collision_class_name)</strong>
     </dt>
     <dd>
-    Gets the collision data generated from the last collision stay event</p>
+    Gets the collision data generated from the last collision stay event
+ Only valid after calling Collider:stay. </p>
 
 <p> getStayCollisionData(string) -> {{Collider, Contact}}
 
@@ -1151,7 +1191,7 @@ collider:setCollisionClass(<span class="string">'Player'</span>)
     <h3>Returns:</h3>
     <ol>
 
-        {{Collider, Contact}}: collision<em>data</em>list A table containing multiple Colliders and <a href="https://love2d.org/wiki/Contact">Contacts</a> generated from the last stay collision event. Usually this list will be of size 1, but sometimes this collider will be staying in contact with multiple other colliders on the same frame, and so those multiple stay events (with multiple colliders) are returned.
+        {{Collider, Contact}}: collision<em>data</em>list A table containing multiple Colliders and <a href="https://love2d.org/wiki/Contact">Contacts</a> generated from the last stay collision event. Usually this list will be of size 1, but sometimes this collider will be staying in contact with multiple other colliders on the same frame, and so those multiple stay events (with multiple colliders) are returned. The Contact is read-only (only get* and is* methods exist) and will become invalid on the next call to World:update, but you can use contact:clone() to create a permanent copy.
     </ol>
 
 
@@ -1176,6 +1216,10 @@ collider:setCollisionClass(<span class="string">'Player'</span>)
     <dd>
     Sets the preSolve callback.
  Unlike <code>:enter</code> or <code>:exit</code>, which can be delayed and checked after the physics simulation is done for this frame, both preSolve and postSolve must be callbacks that are resolved immediately, since they may change how the rest of the simulation plays out on this frame.</p>
+
+<p> You cannot modify the World inside of the preSolve callback because the
+ underlying Box2D world will be locked. See also
+ <a href="https://love2d.org/wiki/World:setCallbacks">World:setCallbacks</a>.</p>
 
 <p> setPreSolve(function) -> nil
 
@@ -1207,6 +1251,10 @@ collider:setCollisionClass(<span class="string">'Player'</span>)
     <dd>
     Sets the postSolve callback.
  Unlike <code>:enter</code> or <code>:exit</code>, which can be delayed and checked after the physics simulation is done for this frame, both preSolve and postSolve must be callbacks that are resolved immediately, since they may change how the rest of the simulation plays out on this frame.</p>
+
+<p> You cannot modify the World inside of the postSolve callback because the
+ underlying Box2D world will be locked. See also
+ <a href="https://love2d.org/wiki/World:setCallbacks">World:setCallbacks</a>.</p>
 
 <p> setPostSolve(function) -> nil
 
@@ -1376,7 +1424,7 @@ self.collider:setObject(self)
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2021-07-01 16:57:16 </i>
+<i style="float:right;">Last updated 2021-07-03 22:22:13 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

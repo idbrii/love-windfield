@@ -105,8 +105,10 @@
     example.title = <span class="string">"Create Collision Classes"</span>
     <span class="keyword">if</span> <span class="keyword">not</span> example.created_collision_classes[example.title] <span class="keyword">then</span>
         example.created_collision_classes[example.title] = <span class="keyword">true</span>
-        world:addCollisionClass(<span class="string">'Solid'</span>)
-        world:addCollisionClass(<span class="string">'Ghost'</span>, {ignores = {<span class="string">'Solid'</span>}})
+        world:addCollisionClassTable({
+                Solid = {},
+                Ghost = {ignores = {<span class="string">'Solid'</span>}},
+            })
     <span class="keyword">end</span>
 
     <span class="keyword">local</span> box_1 = world:newRectangleCollider(<span class="number">400</span> - <span class="number">100</span>, <span class="number">0</span>, <span class="number">50</span>, <span class="number">50</span>)
@@ -132,6 +134,67 @@
                 box:applyLinearImpulse(<span class="number">1000</span>, <span class="number">0</span>)
                 box:applyAngularImpulse(<span class="number">5000</span>)
             <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">local</span> <span class="keyword">function</span> respond_to_collision_events()
+    example.title = <span class="string">"Respond to Collision Events"</span>
+    <span class="keyword">if</span> <span class="keyword">not</span> example.created_collision_classes[example.title] <span class="keyword">then</span>
+        example.created_collision_classes[example.title] = <span class="keyword">true</span>
+        world:addCollisionClassTable({
+                Ball = {},
+                Geo = {},
+                IgnoreAll = {ignores = {<span class="string">'Ball'</span>, <span class="string">'Geo'</span>, <span class="string">'IgnoreAll'</span>}},
+            })
+    <span class="keyword">end</span>
+    world:setGravity(<span class="number">0</span>, <span class="number">0.5</span>)
+
+    <span class="keyword">local</span> radius = <span class="number">200</span>
+    <span class="keyword">local</span> tau = <span class="global">math</span>.pi * <span class="number">2</span>
+    <span class="keyword">for</span> i=<span class="number">0</span>,<span class="number">0.9</span>,<span class="number">0.05</span> <span class="keyword">do</span>
+        <span class="keyword">local</span> angle = tau * i
+        <span class="keyword">local</span> x = <span class="global">math</span>.cos(angle) * radius
+        <span class="keyword">local</span> y = <span class="global">math</span>.sin(angle) * radius
+        <span class="keyword">local</span> ball = world:newCircleCollider(<span class="number">400</span> + x, <span class="number">300</span> + y, <span class="number">20</span>)
+        ball:setRestitution(<span class="number">0.8</span>)
+        ball:setCollisionClass(<span class="string">'Ball'</span>)
+        <span class="keyword">local</span> impulse = -<span class="number">0.1</span> - i
+        ball:applyLinearImpulse(x * impulse, y * impulse)
+        <span class="global">table</span>.insert(objs, ball)
+    <span class="keyword">end</span>
+
+    <span class="keyword">local</span> ground = world:newRectangleCollider(<span class="number">0</span>, <span class="number">550</span>, <span class="number">800</span>, <span class="number">50</span>)
+    ground:setType(<span class="string">'static'</span>)
+    ground:setCollisionClass(<span class="string">'Geo'</span>)
+    <span class="global">table</span>.insert(objs, ground)
+
+    <span class="keyword">local</span> directions = {<span class="number">1</span>, -<span class="number">1</span>}
+    example.on_update = <span class="keyword">function</span>(dt)
+        <span class="keyword">local</span> debris = {}
+        <span class="keyword">for</span> _,ball <span class="keyword">in</span> <span class="global">ipairs</span>(objs) <span class="keyword">do</span>
+            <span class="keyword">if</span> ball:enter(<span class="string">'Ball'</span>) <span class="keyword">then</span>
+                <span class="comment">-- On collision, create some balls that fly off orthogonal to
+</span>                <span class="comment">-- the normal. Not particularly useful, but a simple
+</span>                <span class="comment">-- demonstration of using collision data.
+</span>                <span class="keyword">local</span> collision_data = ball:getEnterCollisionData(<span class="string">'Ball'</span>)
+                <span class="keyword">local</span> px,py = collision_data.contact:getPositions()
+                <span class="keyword">if</span> px <span class="keyword">and</span> py <span class="keyword">then</span>
+                    <span class="keyword">local</span> nx,ny = collision_data.contact:getNormal()
+                    <span class="keyword">local</span> fx,fy = ny,-nx <span class="comment">-- normal rotated 90 degrees
+</span>                    <span class="keyword">local</span> force = <span class="number">100</span>
+                    <span class="keyword">local</span> debris_radius = <span class="number">5</span>
+                    <span class="keyword">for</span> i,direction <span class="keyword">in</span> <span class="global">ipairs</span>(directions) <span class="keyword">do</span>
+                        <span class="keyword">local</span> chunk = world:newCircleCollider(px + fx * debris_radius * direction, py + fy * debris_radius * direction, debris_radius)
+                        chunk:setCollisionClass(<span class="string">'IgnoreAll'</span>)
+                        chunk:applyLinearImpulse(fx * direction * force, fy * direction * force)
+                        <span class="global">table</span>.insert(debris, chunk)
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+        <span class="keyword">for</span> _,d <span class="keyword">in</span> <span class="global">ipairs</span>(debris) <span class="keyword">do</span>
+            <span class="global">table</span>.insert(objs, d)
         <span class="keyword">end</span>
     <span class="keyword">end</span>
 <span class="keyword">end</span>
@@ -176,8 +239,10 @@
     example.title = <span class="string">"One Way Platforms - press space"</span>
     <span class="keyword">if</span> <span class="keyword">not</span> example.created_collision_classes[example.title] <span class="keyword">then</span>
         example.created_collision_classes[example.title] = <span class="keyword">true</span>
-        world:addCollisionClass(<span class="string">'Platform'</span>)
-        world:addCollisionClass(<span class="string">'Player'</span>)
+        world:addCollisionClassTable({
+                Platform = {},
+                Player = {},
+            })
     <span class="keyword">end</span>
 
     <span class="keyword">local</span> ground = world:newRectangleCollider(<span class="number">100</span>, <span class="number">500</span>, <span class="number">600</span>, <span class="number">50</span>)
@@ -216,12 +281,14 @@
     capture_collision_events,
     query_the_world,
     one_way_platforms,
+    <span class="comment">-- More elaborate examples not included in README.
+</span>    respond_to_collision_events,
 }
 
 <span class="comment">-- Loops input value i within range [1, n]. Useful for circular lists.
 </span><span class="keyword">local</span> <span class="keyword">function</span> loop(i, n)
-  <span class="keyword">local</span> z = i - <span class="number">1</span>
-  <span class="keyword">return</span> (z % n) + <span class="number">1</span>
+    <span class="keyword">local</span> z = i - <span class="number">1</span>
+    <span class="keyword">return</span> (z % n) + <span class="number">1</span>
 <span class="keyword">end</span>
 
 <span class="keyword">local</span> <span class="keyword">function</span> noop(...) <span class="keyword">end</span>
@@ -266,6 +333,40 @@
         love.event.quit()
     <span class="keyword">end</span>
     example.on_keypressed(key)
+<span class="keyword">end</span>
+
+
+
+<span class="comment">-- Measure the amount of garbage created by windfield. Shows two values:
+</span><span class="comment">-- * Garbage per Frame: KB of garbage created this frame
+</span><span class="comment">-- * Garbage Watermark: highest seen KB of garbage generated per frame
+</span><span class="keyword">local</span> measure_gc = <span class="keyword">false</span>
+<span class="keyword">if</span> measure_gc <span class="keyword">then</span>
+    <span class="keyword">local</span> <span class="keyword">function</span> measure_garbage(fn, ...)
+        <span class="global">collectgarbage</span>(<span class="string">'collect'</span>)
+        <span class="keyword">local</span> tare = <span class="global">collectgarbage</span>(<span class="string">'count'</span>)
+        <span class="global">collectgarbage</span>(<span class="string">'stop'</span>) <span class="comment">-- prevent gc during measurement
+</span>        fn(...)
+        <span class="keyword">local</span> count = <span class="global">collectgarbage</span>(<span class="string">'count'</span>) - tare
+        <span class="global">collectgarbage</span>(<span class="string">'restart'</span>)
+        <span class="keyword">return</span> count
+    <span class="keyword">end</span>
+
+    <span class="keyword">function</span> love.update(dt)
+        world.gc_count = measure_garbage(world.update, world, dt)
+        world.gc_max = <span class="global">math</span>.max(world.gc_count, world.gc_max <span class="keyword">or</span> <span class="number">0</span>)
+        <span class="keyword">if</span> love.keyboard.isDown(<span class="string">"g"</span>) <span class="keyword">then</span>
+            world.gc_max = <span class="number">0</span>
+        <span class="keyword">end</span>
+        example.on_update()
+    <span class="keyword">end</span>
+    <span class="keyword">local</span> normal_draw = love.draw
+    <span class="keyword">function</span> love.draw()
+        normal_draw()
+        love.graphics.<span class="global">print</span>((<span class="string">"Garbage per Frame: %.3f KB"</span>):format(world.gc_count), <span class="number">10</span>, <span class="number">100</span>)
+        love.graphics.<span class="global">print</span>((<span class="string">"Garbage Watermark: %.3f KB"</span>):format(world.gc_max), <span class="number">10</span>, <span class="number">115</span>)
+        love.graphics.<span class="global">print</span>(<span class="string">"Press g to reset the gc max"</span>, <span class="number">10</span>, <span class="number">130</span>)
+    <span class="keyword">end</span>
 <span class="keyword">end</span></pre>
 
 
@@ -273,7 +374,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2021-07-01 16:57:16 </i>
+<i style="float:right;">Last updated 2021-07-03 22:22:13 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
