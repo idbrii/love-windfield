@@ -51,6 +51,15 @@ local function replace_list_with(dst, ...)
     end
 end
 
+local function list_find(t, query)
+    for i,val in ipairs(t) do
+        if val == query then
+            return i
+        end
+    end
+    return nil
+end
+
 
 -- A readonly version of love's Contact to allow us to cache their contacts but
 -- provide the same API.
@@ -735,28 +744,24 @@ end
 
 function World:collisionClassInCollisionClassesList(collision_class, collision_classes)
     if collision_classes[1] == 'All' then
-        local all_collision_classes = {}
-        for class, _ in pairs(self.collision_classes) do
-            table.insert(all_collision_classes, class)
-        end
         if collision_classes.except then
-            for _, except in ipairs(collision_classes.except) do
-                for i, class in ipairs(all_collision_classes) do
-                    if class == except then
-                        table.remove(all_collision_classes, i)
-                        break
-                    end
+            local except_classes = collision_classes.except
+            collision_classes = {}
+            for class, _ in pairs(self.collision_classes) do
+                table.insert(collision_classes, class)
+            end
+            for _, except in ipairs(except_classes) do
+                local i = list_find(collision_classes, except)
+                if i then
+                    table.remove(collision_classes, i)
                 end
             end
-        end
-        for _, class in ipairs(all_collision_classes) do
-            if class == collision_class then return true end
-        end
-    else
-        for _, class in ipairs(collision_classes) do
-            if class == collision_class then return true end
+        else
+            -- With exceptions everything matches.
+            return true
         end
     end
+    return list_find(collision_classes, collision_class) ~= nil
 end
 
 --- Queries a circular area around a point for colliders.
